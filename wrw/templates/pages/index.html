@@ -1,0 +1,80 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+{% load static %}
+<script src="{% static 'js/index.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    
+<div class="container index-page" style="margin-top: 85px;">
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            <div class="row h-100">
+                <div class="col-12 col-md-6 my-auto">
+                    <select class="form-control symptom">
+                        {% for symptom in symptoms %}
+                        <option value="{{symptom.id}}">{{symptom}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 my-auto">
+                    <a id="redirect_to_symptom" href="#" class="btn btn-primary mx-auto">Search</a>
+                </div>
+            </div>
+        </div>
+
+        <form id="user_login" class="needs-validation col-12 col-lg-6 mb-0" method="POST" novalidate>
+            {% csrf_token %}
+            <p style="color: red; {% if not incorrect_login %}visibility: hidden{% endif %}"><small>Username and password combination not recognized.</small></p>
+
+            <div class="row">
+                <fieldset class="col-12 col-lg-6">
+                    <div class="form-group row mb-0">
+                        <div class="col-12 mb-2">
+                            <input type="text" name="username" class="form-control" placeholder="Username" required />
+                        </div>
+
+                        <div class="col-12">
+                            <input type="password" name="password" class="form-control" placeholder="Password" required />
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="col-12 col-lg-6 my-auto">
+                    <button type="submit" class="btn btn-primary py-3 px-5">Log In</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <p><br/></p>
+            <p>This website is for people to strategize and track a path to improve their mental health, by learning from each other's experiences.</p>
+            <p>A person's profile page looks like this:</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 text-center img-placeholder-container">
+            <img class="border" src="{% static 'images/placeholder-index.png' %}" width="100%" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <p><br/></p>
+            <p>Register below to create your profile. This will enable you to see other people's individual timelines. Or, click search above to see aggregate statistics on what treatments really work. Others timelines will become visible once you log in.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 text-center">
+            <a href="/register" class="btn btn-primary mx-auto">Register</a>
+            <p><br/></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

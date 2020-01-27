@@ -1,7 +1,11 @@
-from django.urls import path
+from django.urls import path, re_path
 
-from . import views
+from .views.index import IndexPage
+from .views.register import RegisterPage
+from .views.verify import VerifyTokenPage
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', IndexPage.as_view()),
+    path('register/', RegisterPage.as_view()),
+    re_path(r'register/verify-token/(?P<token>.*/)?$', VerifyTokenPage.as_view()),
 ]

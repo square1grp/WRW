@@ -1,0 +1,270 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+
+{% load static %}
+<script src="{% static 'js/validator.js' %}"></script>
+<script src="{% static 'js/register.js' %}"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script>
+
+    var placeSearch, autocomplete;
+
+    var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+    };
+
+    function initAutocomplete() {
+        autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById('autocomplete'), { types: ['geocode'] });
+
+        autocomplete.setFields(['address_component']);
+
+        autocomplete.addListener('place_changed', fillInAddress);
+    }
+
+    function fillInAddress() {
+        var values = {
+            street_number: '',
+            route: '',
+            locality: '',
+            administrative_area_level_1: '',
+            country: '',
+            postal_code: ''
+        };
+
+        var place = autocomplete.getPlace();
+
+        for (var i = 0; i < place.address_components.length; i++) {
+            var addressType = place.address_components[i].types[0];
+            if (componentForm[addressType]) {
+                var val = place.address_components[i][componentForm[addressType]];
+                values[addressType] = val;
+            }
+        }
+
+        document.getElementById("autocomplete").value = values['locality'];
+        document.getElementById("state").value = values['administrative_area_level_1'];
+        document.getElementById("country").value = values['country'];
+    }
+</script>
+
+
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZpA8tDIuWo6kUlOT01I-hv0D1XKOCZRg&libraries=places&callback=initAutocomplete"
+    async defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="register-page container" style="margin-top: 85px;">
+    <script>
+        {% if email %}
+            alert("This email({{email}} is existing now, please login)")
+        {% elif username %}
+            alert("This username({{username}} is existing now, please login)")
+        {% endif %}
+    </script>
+
+    <div class="row">
+        <form class="row mx-auto w-100 needs-validation" id="register-form" novalidate method="POST">
+            {% csrf_token %}
+
+            <div class="col-12 col-lg-5">
+                <div class="form-group row">
+                    <label for="username" class="col-form-label col-lg-5">Username</label>
+                    <input id="username" name="username" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a username (no space).
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="password" class="col-form-label col-lg-5">Password</label>
+                    <input id="password" name="password" type="password" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Password must be a combination of letters, numbers, and special characters.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="confirm_password" class="col-form-label col-lg-5">Confirm Password</label>
+                    <input id="confirm_password" name="confirm_password" type="password" class="form-control col-lg-7"
+                        required />
+                    <div class="invalid-feedback text-right">
+                        Password must be a combination of letters, numbers, and special characters.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="email" class="col-form-label col-lg-5">Email Address</label>
+                    <input id="email" name="email" type="email" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide an email address.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="g-recaptcha ml-auto" data-sitekey="6LdTac0UAAAAAM7kzNJi46ewVdERPBEnUAcwwxvG"
+                        data-callback="verifyRecaptchaCallback" data-expired-callback="expiredRecaptchaCallback"></div>
+                    <input class="form-control d-none" data-recaptcha="true" required
+                        data-error="Please complete the Captcha">
+                    <div class="help-block with-errors w-100 text-right"></div>
+                </div>
+            </div>
+
+            <div class="col-lg-2">
+            </div>
+
+            <div class="col-12 col-lg-5">
+                <div class="form-group row">
+                    <label for="first_name" class="col-form-label col-lg-5">First Name</label>
+                    <input id="first_name" name="first_name" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a first name.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="last_name" class="col-form-label col-lg-5">Last Name</label>
+                    <input id="last_name" name="last_name" class="form-control col-lg-7" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a last name.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="birth_year" class="col-form-label col-lg-5">Birth Year</label>
+                    <select class="form-control col-lg-7" name="birth_year" required>
+                        <option value="">Please select an option.</option>
+                        {% for year in years%}
+                        <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="invalid-feedback text-right">
+                        This field is required.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="ethnicity" class="col-form-label col-lg-2">Ethnicity</label>
+                    <div class="col-lg-10">
+                        <div class="row mb-2">
+                            <label for="top" class="col-form-label col-lg-4">Top</label>
+                            <select class="form-control col-lg-8" id="ethnicity_top" name="ethnicity_top" required>
+                                <option value="">Please select an option.</option>
+
+                                {% for key, values in ethnicity_list.items %}
+                                <optgroup label="{{key}}">
+                                    {% for value in values %}
+                                    <option value="{{value}}">{{value}}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback text-right">
+                                This field is required.
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label for="top" class="col-form-label col-lg-4">Second Most</label>
+                            <select class="form-control col-lg-8" id="ethnicity_second" name="ethnicity_second">
+                                <option value="">Please select an option.</option>
+
+                                {% for key, values in ethnicity_list.items %}
+                                <optgroup label="{{key}}">
+                                    {% for value in values %}
+                                    <option value="{{value}}">{{value}}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="row mb-2">
+                            <label for="top" class="col-form-label col-lg-4">Third Most</label>
+                            <select class="form-control col-lg-8" id="ethnicity_third" name="ethnicity_third">
+                                <option value="">Please select an option.</option>
+
+                                {% for key, values in ethnicity_list.items %}
+                                <optgroup label="{{key}}">
+                                    {% for value in values %}
+                                    <option value="{{value}}">{{value}}</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="gender" class="col-form-label col-lg-5">Biological Sex</label>
+                    <select class="form-control col-lg-7" name="gender" id="gender" required>
+                        <option value="">Please select an option.</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+
+                    <div class="invalid-feedback text-right">
+                        This field is required.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="sexual_orientation" class="col-form-label col-lg-5">Sexual Orientation</label>
+                    <select class="form-control col-lg-7" name="sexual_orientation" id="sexual_orientation" required>
+                        <option value="">Please select an option.</option>
+                        <option value="hetero">Heterosexual</option>
+                        <option value="homo">Homosexual</option>
+                        <option value="bi">Bisexual</option>
+                    </select>
+
+                    <div class="invalid-feedback text-right">
+                        This field is required.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="zipcode" class="col-form-label col-lg-5">Zip Code</label>
+                    <input type="text" class="form-control col-lg-7" name="zipcode" />
+                </div>
+
+                <div class="form-group row">
+                    <label for="city" class="col-form-label col-lg-5">City</label>
+                    <input type="text" class="form-control col-lg-7" id="autocomplete" name="city" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a city.
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="state" class="col-form-label col-lg-5">State</label>
+                    <input type="text" class="form-control col-lg-7" id="state" name="state" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a state.
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <label for="country" class="col-form-label col-lg-5">Country</label>
+                    <input type="text" class="form-control col-lg-7" id="country" name="country" required />
+                    <div class="invalid-feedback text-right">
+                        Please provide a country.
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary mx-auto my-5">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

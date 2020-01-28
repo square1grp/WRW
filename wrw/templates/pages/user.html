@@ -1,0 +1,31 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/user.css' %}">
+<script src="{% static 'js/user.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+<div class="container user-page">
+    <div class="row mb-5 search-container">
+        <div class="col-12 col-md-3 menu-container">
+            <a id="menu-btn" href="javascript: void(0)">
+                <img width="50" src="{% static 'images' %}/avatar-{{user.gender}}.png"/><br/>
+                <label>{{user.first_name}}<br/>({{user.username}})</label>
+            </a>
+
+            <div id="menu" style="display: none">
+                <ul>
+                    <li><a href='/account'>Manage account</a></li>
+                    <li><a href='/?action=logout'>Log out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

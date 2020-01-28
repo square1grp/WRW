@@ -8,6 +8,7 @@ from uuid import uuid4
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from django.views.decorators.csrf import csrf_exempt
+from website.settings import SENDGRID_KEY, GOOGLE_CAPTCHA_KEY, GOOGLE_MAP_KEY
 
 
 class RegisterPage(View):
@@ -93,8 +94,7 @@ class RegisterPage(View):
                 subject='Email verification',
                 html_content='<a href="%s" target="_blank">Click here</a> or visit this URL on the browser: %s' % (href, href))
 
-            sg = SendGridAPIClient(
-                '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')
+            sg = SendGridAPIClient(SENDGRID_KEY)
             sg.send(message)
 
             user.save()
@@ -116,4 +116,14 @@ class RegisterPage(View):
 
         ethnicity_list = self.getEthnicityList()
 
-        return render(request, self.template_name, dict(email=email, username=username, years=years, ethnicity_list=ethnicity_list))
+        return render(
+            request,
+            self.template_name,
+            dict(
+                email=email,
+                username=username,
+                years=years,
+                ethnicity_list=ethnicity_list,
+                GOOGLE_CAPTCHA_KEY=GOOGLE_CAPTCHA_KEY,
+                GOOGLE_MAP_KEY=GOOGLE_MAP_KEY)
+        )

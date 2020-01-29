@@ -28,8 +28,8 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
             </td>
 
             <td class="align-middle" width="10%">
-                <button id="remove-SymptomID" type="button" class="close" data-symptom-id="SymptomID">
-                    <span aria-hidden="true">&times;</span>
+                <button class="btn btn-danger delete" id="remove-SymptomID" type="button" data-symptom-id="SymptomID">
+                    <i class="fa fa-times" aria-hidden="true"></i>
                 </button>
             </td>
         </tr>
@@ -39,14 +39,14 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
 };
 
 $(document).ready(function () {
-    $("button.close:not(#add-symptom)").click(function () {
+    $("form.uss-form button.delete").click(function () {
         var symptom_id = $(this).data("symptom-id");
         $(this).parents("tr").remove()
 
-        $("select.symptoms option[value=" + symptom_id + "]").prop("disabled", false);
+        $("form.uss-form select.symptoms option[value=" + symptom_id + "]").prop("disabled", false);
     });
 
-    $("button#add-symptom").click(function () {
+    $("form.uss-form button#add-symptom").click(function () {
         var symptom_id = $("select.symptoms").val();
 
         if (symptom_id) {
@@ -54,16 +54,16 @@ $(document).ready(function () {
                 if (symptom['id'] == symptom_id) {
                     var template = getTrHTML(symptom['id'], symptom['name'], symptom['levels']);
 
-                    $("table.cus-list tbody").append(template);
+                    $("form.uss-form table.cus-list tbody").append(template);
 
-                    $("button#remove-" + symptom['id']).click(function () {
+                    $("form.uss-form button#remove-" + symptom['id']).click(function () {
                         $(this).parents("tr").remove()
 
-                        $("select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", false);
+                        $("form.uss-form select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", false);
                     });
 
-                    $("select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", true);
-                    $("select.symptoms").val("-1");
+                    $("form.uss-form select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", true);
+                    $("form.uss-form select.symptoms").val("-1");
                 }
             });
         }

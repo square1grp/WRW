@@ -121,6 +121,9 @@ class UserSymptomSeverities(models.Model):
         return self.user.email
     getUserEmail.short_description = 'Email'
 
+    def getUSSSList(self):
+        return UserSingleSymptomSeverity.objects.filter(user_symptom_severities__id=self.id)
+
 
 # User Single Symptom Severity
 class UserSingleSymptomSeverity(models.Model):
@@ -153,12 +156,15 @@ class UserSingleSymptomSeverity(models.Model):
         return self.user_symptom_severities.getUserEmail()
     getUserEmail.short_description = 'Email'
 
+    def getSymptom(self):
+        return self.symptom
+
     def getSymptomName(self):
         return self.symptom.name
     getSymptomName.short_description = 'Symptom'
 
     def getLevel(self):
-        return getattr(self.symptom, 'level_%s' % self.selected_level)
+        return getattr(self.symptom, 'level_%s' % self.selected_level) if self.selected_level else None
     getLevel.short_description = 'Symptom Level'
 
 

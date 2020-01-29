@@ -1,4 +1,4 @@
-.btn:not(.delete):not(.edit) {
+.btn:not(.delete):not(.edit):not(.add) {
   max-width: 250px;
   width: 100%;
 }

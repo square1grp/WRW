@@ -3,6 +3,7 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
         <tr>
             <td class="align-middle" width="22%">
                 <h4 class="mb-0">SymptomName</h4>
+                <input type="hidden" name="symptom_IDs" value="SymptomID"/>
             </td>
 
             <td class="align-middle" width="58%">

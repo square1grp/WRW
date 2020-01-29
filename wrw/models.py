@@ -134,6 +134,9 @@ class UserSingleSymptomSeverity(models.Model):
         verbose_name = 'User-Single-Symptom Severity'
         verbose_name_plural = 'User-Single-Symptom Severities'
 
+    def __str__(self):
+        return '%s in %s' % (self.symptom, self.user_symptom_severities)
+
     def getUserFirstName(self):
         return self.user_symptom_severities.getUserFirstName()
     getUserFirstName.short_description = 'First Name'

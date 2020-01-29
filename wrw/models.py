@@ -55,6 +55,9 @@ class Symptom(models.Model):
     def __str__(self):
         return self.name
 
+    def getSymptomLevels(self):
+        return [getattr(self, 'level_%s' % (i+1)) for i in range(5)]
+
 
 # Current User Symptom
 class CurrentUserSymptom(models.Model):
@@ -84,6 +87,9 @@ class CurrentUserSymptom(models.Model):
     def getSymptomName(self):
         return self.symptom.name
     getSymptomName.short_description = 'Symptom'
+
+    def getSymptomLevels(self):
+        return [getattr(self.symptom, 'level_%s' % (i+1)) for i in range(5)]
 
 
 # User Symptom Severities

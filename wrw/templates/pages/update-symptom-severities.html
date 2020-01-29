@@ -1,0 +1,135 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/update-symptom-severities.css' %}">
+<script src="{% static 'js/update-symptom-severities.js' %}"></script>
+
+<script>
+    var org_symptoms = {{org_symptoms|safe}}
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container update-symptom-severities-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/user/{{user_id}}" role="button">Back to Home</a>
+    </div>
+
+    <div class="row">
+        <h2 class="col-12 text-center">Update Symptom Severities</h2>
+
+        <form class="row mx-auto w-100 needs-validation my-3" novalidate method="POST">
+            {% csrf_token %}
+
+            <div class="col-12">
+                <div class="row justify-content-md-center">
+                    <div class="col-12 col-lg-3">
+                        <div class="form-group row mx-lg-0">
+                            <label for="date" class="col-form-label label-1">Date</label>
+                            <input id="date" name="date" class="form-control col" required />
+
+                            <script>
+                                var today = new Date();
+
+                                $("#date").datepicker({ 
+                                    autoclose: true, 
+                                    maxDate: today, 
+                                    defaultDate: today,
+                                    changeMonth: true,
+                                    changeYear: true 
+                                });
+                                $("#date").datepicker("setDate", today);
+                            </script>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-3">
+                        <div class="form-group row mx-lg-0">
+                            <label for="time" class="col-form-label label-1">Time</label>
+                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time.h}}:{{current_time.m}}:{{current_time.s}}" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-md-center">
+                    <div class="col-12 col-lg-6">
+                        <div class="form-group row mx-lg-0">
+                            <label for="title" class="col-form-label label-1">Title</label>
+                            <input id="title" name="title" class="form-control col" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-borderless cus-list">
+                <tbody>
+                    {% for cus in cus_list %}
+                        <tr>
+                            <td class="align-middle" width="22%">
+                                <h4 class="mb-0">{{cus.getSymptomName}}</h4>
+                            </td>
+
+                            <td class="align-middle" width="58%">
+                                <div class="row mx-auto">
+                                    {% for level in cus.getSymptomLevels %}
+                                        <div class="col text-center">
+                                            <label for="radio_{{cus.symptom.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                            <input id="radio_{{cus.symptom.id}}_{{forloop.counter}}" type="radio" name="symptom_{{cus.symptom.id}}_level" value="{{forloop.counter}}"/>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+
+                            <td class="align-middle" width="20%">
+                                <input name="symptom_{{cus.symptom.id}}_description" class="form-control" placeholder="Description">
+                            </td>
+
+                            <td class="align-middle" width="10%">
+                                <button id="remove-{{cus.symptom.id}}" type="button" class="close" data-symptom-id="{{cus.symptom.id}}">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td class="align-middle" width="22%">
+                            <select class="form-control symptoms">
+                                <option value="-1">Please select symptom</option>
+                                {% for symptom in symptoms %}
+                                    <option value="{{symptom.id}}" {% if symptom.disabled %}disabled{% endif %}>{{symptom.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+
+                        <td class="align-middle" width="58%">
+                            <button id="add-symptom" type="button" class="close float-left">
+                                <span aria-hidden="true">&plus;</span>
+                            </button>
+                        </td>
+
+                        <td width="20%"/>
+                        <td width="10%"/>
+                    </tr>
+
+                    <tr>
+                        <td colspan="4">
+                            <div class="row mx-auto">
+                                <button class="btn btn-primary mx-auto" type="submit">Submit</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

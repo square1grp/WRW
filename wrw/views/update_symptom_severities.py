@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views import View
 from wrw.models import User, Symptom, CurrentUserSymptom, UserSymptomSeverities, UserSingleSymptomSeverity
 from wrw.utils import isUserLoggedIn
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 
@@ -58,10 +58,18 @@ class UpdateSymptomSeveritiesPage(View):
 
         if params['action'] == 'add':
             if 'selected_uss_id' in params:
+                # update Update Symptom Severities
                 uss = UserSymptomSeverities.objects.get(
                     id=params['selected_uss_id'])
 
-                usss_list = UserSingleSymptomSeverity.objects.filter(user_symptom_severities=uss)
+                uss.created_at = datetime.strptime(
+                    '%s %s' % (params['date'], params['time']), '%m/%d/%Y %H:%M:%S')
+                uss.title = params['title']
+
+                uss.save()
+
+                usss_list = UserSingleSymptomSeverity.objects.filter(
+                    user_symptom_severities=uss)
                 for usss in usss_list:
                     usss.delete()
             else:
@@ -87,8 +95,13 @@ class UpdateSymptomSeveritiesPage(View):
         elif params['action'] == 'delete':
             uss = UserSymptomSeverities.objects.get(id=params['uss_id'])
             uss.delete()
-        elif params['action'] == 'edit':
-            kwargs['uss_id'] = params['uss_id']
+
+        elif params['action'] in ['edit', 'date_filter']:
+            if 'uss_id' in params:
+                kwargs['uss_id'] = params['uss_id']
+
+            if 'date_filter' in params:
+                kwargs['date_filter'] = params['date_filter']
 
         return self.get(request, *args, **kwargs)
 
@@ -122,9 +135,11 @@ class UpdateSymptomSeveritiesPage(View):
             )
 
             for symptom in Symptom.objects.all():
-                _symptom = dict(id=symptom.id, name=symptom.name, disabled=False)
+                _symptom = dict(
+                    id=symptom.id, name=symptom.name, disabled=False)
                 try:
-                    UserSingleSymptomSeverity.objects.get(user_symptom_severities=selected_uss, symptom=symptom)
+                    UserSingleSymptomSeverity.objects.get(
+                        user_symptom_severities=selected_uss, symptom=symptom)
 
                     _symptom['disabled'] = True
                 except ObjectDoesNotExist:
@@ -145,7 +160,8 @@ class UpdateSymptomSeveritiesPage(View):
             )
         else:
             for symptom in Symptom.objects.all():
-                _symptom = dict(id=symptom.id, name=symptom.name, disabled=False)
+                _symptom = dict(
+                    id=symptom.id, name=symptom.name, disabled=False)
                 try:
                     CurrentUserSymptom.objects.get(user=user, symptom=symptom)
 
@@ -154,6 +170,10 @@ class UpdateSymptomSeveritiesPage(View):
                     pass
 
                 symptoms.append(_symptom)
+
+        date_filter = (datetime.now() - timedelta(1)).strftime('%m/%d/%Y')
+        if 'date_filter' in kwargs:
+            date_filter = kwargs['date_filter']
 
         org_symptoms = [dict(
             id=symptom.id,
@@ -166,7 +186,11 @@ class UpdateSymptomSeveritiesPage(View):
             date=uss.created_at.strftime('%m/%d/%Y'),
             time=uss.created_at.strftime('%H:%M:%S'),
             title=uss.title
-        ) for uss in UserSymptomSeverities.objects.filter(user=user).order_by('-created_at')]
+        ) for uss in UserSymptomSeverities.objects.filter(
+            user=user,
+            created_at__range=(datetime.strptime(
+                date_filter, '%m/%d/%Y'), datetime.now())
+        ).order_by('-created_at')]
 
         return render(request, self.template_name, dict(
             user_id=user_id,
@@ -174,6 +198,7 @@ class UpdateSymptomSeveritiesPage(View):
             cus_list=cus_list,
             uss_list=uss_list,
             symptoms=symptoms,
+            date_filter=date_filter,
             org_symptoms=org_symptoms,
             current_time=current_time
         ))

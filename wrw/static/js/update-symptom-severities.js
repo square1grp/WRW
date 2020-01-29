@@ -2,7 +2,7 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
     template = `
         <tr>
             <td class="align-middle" width="22%">
-                <h4 class="mb-0">SymptomName</h4>
+                <h5 class="mb-0">SymptomName</h5>
                 <input type="hidden" name="symptom_IDs" value="SymptomID"/>
             </td>
 
@@ -67,5 +67,10 @@ $(document).ready(function () {
                 }
             });
         }
+    });
+
+    $("#date_filter").change(function () {
+        console.log($(this).val())
+        $("form.date_filter").submit();
     });
 });

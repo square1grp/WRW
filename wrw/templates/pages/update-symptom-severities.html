@@ -80,7 +80,7 @@
                         {% for usss in selected_uss.usss_list %}
                             <tr>
                                 <td class="align-middle" width="22%">
-                                    <h4 class="mb-0">{{usss.symptom.name}}</h4>
+                                    <h5 class="mb-0">{{usss.symptom.name}}</h5>
                                     <input type="hidden" name="symptom_IDs" value="{{usss.symptom.id}}"/>
                                 </td>
 
@@ -112,7 +112,7 @@
                         {% for cus in cus_list %}
                             <tr>
                                 <td class="align-middle" width="22%">
-                                    <h4 class="mb-0">{{cus.getSymptomName}}</h4>
+                                    <h5 class="mb-0">{{cus.getSymptomName}}</h5>
                                     <input type="hidden" name="symptom_IDs" value="{{cus.symptom.id}}"/>
                                 </td>
 
@@ -178,6 +178,38 @@
     </div>
 
     <div class="row">
+        <div class="col-12 text-center">
+            <div class="row justify-content-md-center">
+                <div class="col-12 col-lg-3">
+                    <form class="date_filter" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="date_filter" />
+                        {% if selected_uss %}
+                            <input type="hidden" name="uss_id" value="{{selected_uss.id}}" />
+                        {% endif %}
+
+                        <div class="form-group row">
+                            <label for="date_filter" class="col-form-label label-1">From : </label>
+                            <input id="date_filter" name="date_filter" class="form-control col" required />
+
+                            <script>
+                                var date = "{{date_filter}}";
+
+                                $("#date_filter").datepicker({ 
+                                    autoclose: true, 
+                                    maxDate: new Date(), 
+                                    defaultDate: new Date(),
+                                    changeMonth: true,
+                                    changeYear: true 
+                                });
+                                $("#date_filter").datepicker("setDate", date);
+                            </script>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <table class="w-100 table table-borderless uss-list">
             <tbody>
                 {% for uss in uss_list %}
@@ -192,6 +224,7 @@
 
                                     <input type="hidden" name="action" value="edit"/>
                                     <input type="hidden" name="uss_id" value="{{uss.id}}"/>
+                                    <input type="hidden" name="date_filter" value="{{date_filter}}"/>
 
                                     <button class="btn btn-success edit" type="submit">
                                         <i class="fa fa-pencil" aria-hidden="true"></i>

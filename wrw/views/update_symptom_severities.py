@@ -171,7 +171,7 @@ class UpdateSymptomSeveritiesPage(View):
 
                 symptoms.append(_symptom)
 
-        date_filter = (datetime.now() - timedelta(1)).strftime('%m/%d/%Y')
+        date_filter = datetime.now().strftime('%m/%d/%Y')
         if 'date_filter' in kwargs:
             date_filter = kwargs['date_filter']
 
@@ -188,8 +188,8 @@ class UpdateSymptomSeveritiesPage(View):
             title=uss.title
         ) for uss in UserSymptomSeverities.objects.filter(
             user=user,
-            created_at__range=(datetime.strptime(
-                date_filter, '%m/%d/%Y'), datetime.now())
+            created_at__range=(datetime.strptime('%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S'),
+                               datetime.strptime('%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S'))
         ).order_by('-created_at')]
 
         return render(request, self.template_name, dict(

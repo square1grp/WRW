@@ -5,6 +5,7 @@ from wrw.views.register import RegisterPage
 from wrw.views.verify import VerifyTokenPage
 from wrw.views.user import UserPage
 from wrw.views.update_symptom_severities import UpdateSymptomSeveritiesPage
+from wrw.views.update_factor_severities import UpdateFactorSeveritiesPage
 
 urlpatterns = [
     path('', IndexPage.as_view()),
@@ -14,4 +15,6 @@ urlpatterns = [
     path('user/<int:user_id>/', UserPage.as_view()),
     path('user/<int:user_id>/update_symptom_severities/',
          UpdateSymptomSeveritiesPage.as_view()),
+    path('user/<int:user_id>/update_factor_severities/',
+         UpdateFactorSeveritiesPage.as_view()),
 ]

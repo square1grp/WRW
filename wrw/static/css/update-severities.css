@@ -2,6 +2,11 @@
   width: 80px;
 }
 
-.table-borderless td {
+.table-borderless td,
+.table-borderless thead th {
   border: none;
+}
+
+.update-severities-page table tbody .btn:not(.delete):not(.edit):not(.add) {
+  width: 150px;
 }

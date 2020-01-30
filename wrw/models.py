@@ -185,6 +185,9 @@ class Factor(models.Model):
     def __str__(self):
         return self.title
 
+    def getFactorLevels(self):
+        return [getattr(self, 'level_%s' % (i+1)) for i in range(5)]
+
 
 # Current Intermittent Factor
 class CurrentIntermittentFactor(models.Model):
@@ -215,6 +218,9 @@ class CurrentIntermittentFactor(models.Model):
         return self.factor.title
     getFactorTitle.short_description = 'Factor'
 
+    def getFactorLevels(self):
+        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(5)]
+
 
 # Current Daily Factor
 class CurrentDailyFactor(models.Model):
@@ -244,6 +250,9 @@ class CurrentDailyFactor(models.Model):
     def getFactorTitle(self):
         return self.factor.title
     getFactorTitle.short_description = 'Factor'
+
+    def getFactorLevels(self):
+        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(5)]
 
 
 # User Intermittent Factor

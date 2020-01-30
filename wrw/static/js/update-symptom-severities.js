@@ -28,7 +28,7 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
             </td>
 
             <td class="align-middle" width="10%">
-                <button class="btn btn-danger delete" id="remove-SymptomID" type="button" data-symptom-id="SymptomID">
+                <button class="btn btn-danger delete" id="delete-symptom-SymptomID" type="button" data-symptom-id="SymptomID">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </button>
             </td>
@@ -56,7 +56,7 @@ $(document).ready(function () {
 
                     $("form.uss-form table.cus-list tbody").append(template);
 
-                    $("form.uss-form button#remove-" + symptom['id']).click(function () {
+                    $("form.uss-form button#delete-symptom-" + symptom['id']).click(function () {
                         $(this).parents("tr").remove()
 
                         $("form.uss-form select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", false);
@@ -70,7 +70,6 @@ $(document).ready(function () {
     });
 
     $("#date_filter").change(function () {
-        console.log($(this).val())
         $("form.date_filter").submit();
     });
 });

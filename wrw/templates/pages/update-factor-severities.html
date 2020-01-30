@@ -6,6 +6,10 @@
 <link rel="stylesheet" href="{% static 'css/update-severities.css' %}">
 <script src="{% static 'js/update-factor-severities.js' %}"></script>
 
+<script>
+    var org_factors = {{org_factors|safe}}
+</script>
+
 {% endblock %}
 
 {% block content %}
@@ -16,9 +20,9 @@
     </div>
 
     <div class="row">
-        <h2 class="col-12 text-center">Factor / Treatment Update</h2>
+        <h2 class="col-12 text-center">Treatments / Factors Update</h2>
 
-        <form class="uss-form w-100 needs-validation my-3" novalidate method="POST">
+        <form class="ufs-form w-100 needs-validation my-3" novalidate method="POST">
             {% csrf_token %}
                                     
             <input type="hidden" name="action" value="add"/>
@@ -63,7 +67,98 @@
                 </div>
             </div>
 
-            
+            <table class="table table-borderless cif-list">
+                <thead>
+                    <tr>
+                        <th colspan="4">
+                            <h5 class="text-uppercase text-center">Intermittent Treatments/Factors</h5>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for cif in cif_list %}
+                        <tr>
+                            <td class="align-middle" width="15%">
+                                <h5 class="mb-0">{{cif.getFactorTitle}}</h5>
+                                <input type="hidden" name="factor_IDs" value="{{cif.factor.id}}"/>
+                            </td>
+
+                            <td class="align-middle" width="50%">
+                                <div class="row mx-auto">
+                                    {% for level in cif.getFactorLevels %}
+                                        <div class="col text-center">
+                                            <label for="radio_{{cif.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                            <input id="radio_{{cif.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cif.factor.id}}_level" value="{{forloop.counter}}"/>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+
+                            <td class="align-middle" width="20%">
+                                <input name="factor_{{cif.factor.id}}_description" class="form-control" placeholder="Description">
+                            </td>
+
+                            <td class="align-middle">
+                                <div class="row mx-auto">
+                                    <button class="btn btn-danger delete" id="delete-factor-{{cif.factor.id}}" type="button" data-factor-id="{{cif.factor.id}}">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <table class="table table-borderless cdf-list">
+                <thead>
+                    <tr>
+                        <th colspan="4">
+                            <h5 class="text-uppercase text-center">Daily Treatments/Factors</h5>
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for cdf in cdf_list %}
+                        <tr>
+                            <td class="align-middle" width="15%">
+                                <h5 class="mb-0">{{cdf.getFactorTitle}}</h5>
+                                <input type="hidden" name="factor_IDs" value="{{cdf.factor.id}}"/>
+                            </td>
+
+                            <td class="align-middle" width="50%">
+                                <div class="row mx-auto">
+                                    {% for level in cdf.getFactorLevels %}
+                                        <div class="col text-center">
+                                            <label for="radio_{{cdf.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                            <input id="radio_{{cdf.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cdf.factor.id}}_level" value="{{forloop.counter}}"/>
+                                        </div>
+                                    {% endfor %}
+
+                                    <div class="col text-center">
+                                        <label for="radio_{{cdf.factor.id}}_skipped" class="text-center w-100">Skipped?</label>
+                                        <input id="radio_{{cdf.factor.id}}_skipped" type="checkbox" name="factor_{{cdf.factor.id}}_skipped" value="yes"/>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="align-middle" width="20%">
+                                <input name="factor_{{cdf.factor.id}}_description" class="form-control" placeholder="Description">
+                            </td>
+
+                            <td class="align-middle">
+                                <div class="row mx-auto">
+                                    <button class="btn btn-danger delete" id="delete-factor-{{cdf.factor.id}}" type="button" data-factor-id="{{cdf.factor.id}}">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
             <table class="table table-borderless factor-list">
                 <tfoot>
@@ -72,15 +167,15 @@
                             <select class="form-control factors">
                                 <option value="-1">Please select factor</option>
                                 {% for factor in factors %}
-                                    <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.name}}</option>
+                                    <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.title}}</option>
                                 {% endfor %}
                             </select>
                         </td>
 
                         <td class="align-middle" width="58%">
                             <div class="row mx-auto">
-                                <button class="btn btn-primary mr-2">Add as an Intermittent Factor</button>
-                                <button class="btn btn-primary mr-auto">Add as a Daily Factor</button>
+                                <button id="add-intermittent-factor" class="btn btn-primary mr-2">Add as an Intermittent Factor</button>
+                                <button id="add-daily-factor" class="btn btn-primary mr-auto">Add as a Daily Factor</button>
                             </div>
                         </td>
 

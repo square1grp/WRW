@@ -10,3 +10,8 @@
 .update-severities-page table tbody .btn:not(.delete):not(.edit):not(.add) {
   width: 150px;
 }
+
+.update-severities-page table tr td:nth-child(2) div.col {
+  padding-left: 5px;
+  padding-right: 5px;
+}

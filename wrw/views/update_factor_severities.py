@@ -11,6 +11,23 @@ from django.views.decorators.csrf import csrf_exempt
 class UpdateFactorSeveritiesPage(View):
     template_name = 'pages/update-factor-severities.html'
 
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        user_id = isUserLoggedIn(request)
+
+        if not user_id:
+            return HttpResponseRedirect('/')
+
+        try:
+            user = User.objects.get(id=user_id)
+        except ObjectDoesNotExist:
+            return HttpResponse('No user.')
+
+        params = request.POST
+
+        import pdb
+        pdb.set_trace()
+
     def get(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 

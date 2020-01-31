@@ -1,12 +1,12 @@
 var getTrHTML = function (symptomID, symptomName, symptomLevels) {
     template = `
         <tr>
-            <td class="align-middle" width="22%">
+            <td class="align-middle" width="250px">
                 <h5 class="mb-0">SymptomName</h5>
                 <input type="hidden" name="symptom_IDs" value="SymptomID"/>
             </td>
 
-            <td class="align-middle" width="58%">
+            <td class="align-middle" width="550px">
                 <div class="row mx-auto">
     `;
 
@@ -23,14 +23,16 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
                 </div>
             </td>
 
-            <td class="align-middle" width="20%">
+            <td class="align-middle" width="250px">
                 <input name="symptom_SymptomID_description" class="form-control" placeholder="Description">
             </td>
 
-            <td class="align-middle" width="10%">
-                <button class="btn btn-danger delete" id="delete-symptom-SymptomID" type="button" data-symptom-id="SymptomID">
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                </button>
+            <td class="align-middle">
+                <div class="row mx-auto">
+                    <button class="btn btn-danger delete" id="delete-symptom-SymptomID" type="button" data-symptom-id="SymptomID">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
             </td>
         </tr>
     `;

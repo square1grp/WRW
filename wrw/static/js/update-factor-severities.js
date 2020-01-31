@@ -1,12 +1,12 @@
 var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) {
     template = `
         <tr>
-            <td class="align-middle" width="15%">
+            <td class="align-middle" width="200px">
                 <h5 class="mb-0">FactorTitle</h5>
-                <input type="hidden" name="factor_IDs" value="FactorID"/>
+                <input type="hidden" name="factor_`+ (is_daily_factor ? 'Daily' : 'Intermittent') + `_IDs" value="FactorID"/>
             </td>
 
-            <td class="align-middle" width="50%">
+            <td class="align-middle" width="500px">
                 <div class="row mx-auto">
     `;
 
@@ -14,7 +14,7 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
         template += `
             <div class="col text-center">
                 <label for="radio_FactorID_`+ (i + 1) + `" class="text-center w-100">` + factorLevels[i] + `</label>
-                <input id="radio_FactorID_`+ (i + 1) + `" type="radio" name="symptom_FactorID_level" value="` + (i + 1) + `"/>
+                <input id="radio_FactorID_`+ (i + 1) + `" type="radio" name="factor_FactorID_level" value="` + (i + 1) + `"/>
             </div>
         `;
     }
@@ -32,14 +32,19 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
                 </div>
             </td>
 
-            <td class="align-middle" width="20%">
-                <input name="symptom_FactorID_description" class="form-control" placeholder="Description">
+            <td class="align-middle" width="200px">
+                <input name="factor_FactorID_description" class="form-control" placeholder="Description">
             </td>
 
-            <td class="align-middle" width="10%">
-                <button class="btn btn-danger delete" id="delete-factor-FactorID" type="button" data-symptom-id="FactorID">
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                </button>
+            <td class="align-middle">
+                <div class="row mx-auto">
+                    <button id="convert-factor-FactorID" class="btn btn-primary mr-2">Make ` + (is_daily_factor ? `Intermittent` : 'Daily') + `</button>`;
+
+    template += `
+                    <button class="btn btn-danger delete" id="delete-factor-FactorID" type="button" data-factor-id="FactorID">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
             </td>
         </tr>
     `;
@@ -48,9 +53,7 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
 };
 
 $(document).ready(function () {
-    var addFactor = function (is_daily_factor) {
-        var factor_id = $("select.factors").val();
-
+    var addFactor = function (factor_id, is_daily_factor) {
         if (factor_id) {
             $.each(org_factors, function (idx, factor) {
                 if (factor['id'] == factor_id) {
@@ -82,10 +85,12 @@ $(document).ready(function () {
     });
 
     $("form.ufs-form button#add-intermittent-factor").click(function () {
-        addFactor(false)
+        var factor_id = $("select#a-intermittent-factors").val();
+        addFactor(factor_id, false)
     });
 
     $("form.ufs-form button#add-daily-factor").click(function () {
-        addFactor(true);
+        var factor_id = $("select#a-daily-factors").val();
+        addFactor(factor_id, true);
     });
 });

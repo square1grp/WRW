@@ -24,8 +24,9 @@
 
         <form class="uss-form w-100 needs-validation my-3" novalidate method="POST">
             {% csrf_token %}
-                                    
+
             <input type="hidden" name="action" value="add"/>
+            
             {% if selected_uss %}
                 <input type="hidden" name="selected_uss_id" value="{{selected_uss.id}}"/>
             {% endif %}
@@ -79,12 +80,12 @@
                     {% if selected_uss %}
                         {% for usss in selected_uss.usss_list %}
                             <tr>
-                                <td class="align-middle" width="22%">
+                                <td class="align-middle" width="250px">
                                     <h5 class="mb-0">{{usss.symptom.name}}</h5>
                                     <input type="hidden" name="symptom_IDs" value="{{usss.symptom.id}}"/>
                                 </td>
 
-                                <td class="align-middle" width="58%">
+                                <td class="align-middle" width="550px">
                                     <div class="row mx-auto">
                                         {% for level in usss.symptom.getSymptomLevels %}
                                             <div class="col text-center">
@@ -95,11 +96,11 @@
                                     </div>
                                 </td>
 
-                                <td class="align-middle" width="20%">
+                                <td class="align-middle" width="250px">
                                     <input name="symptom_{{usss.symptom.id}}_description" class="form-control" placeholder="Description" value={{usss.description}}>
                                 </td>
 
-                                <td class="align-middle" width="10%">
+                                <td class="align-middle">
                                     <div class="row mx-auto">
                                         <button class="btn btn-danger delete" id="delete-symptom-{{usss.symptom.id}}" type="button" data-symptom-id="{{usss.symptom.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
@@ -111,12 +112,12 @@
                     {% else %}
                         {% for cus in cus_list %}
                             <tr>
-                                <td class="align-middle" width="22%">
+                                <td class="align-middle" width="250px">
                                     <h5 class="mb-0">{{cus.getSymptomName}}</h5>
                                     <input type="hidden" name="symptom_IDs" value="{{cus.symptom.id}}"/>
                                 </td>
 
-                                <td class="align-middle" width="58%">
+                                <td class="align-middle" width="550px">
                                     <div class="row mx-auto">
                                         {% for level in cus.getSymptomLevels %}
                                             <div class="col text-center">
@@ -127,11 +128,11 @@
                                     </div>
                                 </td>
 
-                                <td class="align-middle" width="20%">
+                                <td class="align-middle" width="250px">
                                     <input name="symptom_{{cus.symptom.id}}_description" class="form-control" placeholder="Description">
                                 </td>
 
-                                <td class="align-middle" width="10%">
+                                <td class="align-middle">
                                     <div class="row mx-auto">
                                         <button class="btn btn-danger delete" id="delete-symptom-{{cus.symptom.id}}" type="button" data-symptom-id="{{cus.symptom.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
@@ -145,7 +146,7 @@
 
                 <tfoot>
                     <tr>
-                        <td class="align-middle" width="22%">
+                        <td class="align-middle" width="250px">
                             <select class="form-control symptoms">
                                 <option value="-1">Please select symptom</option>
                                 {% for symptom in symptoms %}
@@ -154,14 +155,14 @@
                             </select>
                         </td>
 
-                        <td class="align-middle" width="58%">
+                        <td class="align-middle" width="550px">
                             <button class="btn btn-success add float-left" id="add-symptom" type="button">
                                 <i class="fa fa-plus" aria-hidden="true"></i>
                             </button>
                         </td>
 
-                        <td width="20%"/>
-                        <td width="10%"/>
+                        <td width="250px"/>
+                        <td/>
                     </tr>
 
                     <tr>

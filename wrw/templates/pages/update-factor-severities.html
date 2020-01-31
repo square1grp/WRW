@@ -79,15 +79,15 @@
                 <tbody>
                     {% for cif in cif_list %}
                         <tr>
-                            <td class="align-middle" width="15%">
+                            <td class="align-middle" width="200px">
                                 <h5 class="mb-0">{{cif.getFactorTitle}}</h5>
-                                <input type="hidden" name="factor_IDs" value="{{cif.factor.id}}"/>
+                                <input type="hidden" name="factor_Intermittent_IDs" value="{{cif.factor.id}}"/>
                             </td>
 
-                            <td class="align-middle" width="50%">
+                            <td class="align-middle" width="500px">
                                 <div class="row mx-auto">
                                     {% for level in cif.getFactorLevels %}
-                                        <div class="col text-center">
+                                        <div class="col px-1 text-center">
                                             <label for="radio_{{cif.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
                                             <input id="radio_{{cif.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cif.factor.id}}_level" value="{{forloop.counter}}"/>
                                         </div>
@@ -95,12 +95,13 @@
                                 </div>
                             </td>
 
-                            <td class="align-middle" width="20%">
+                            <td class="align-middle" width="200px">
                                 <input name="factor_{{cif.factor.id}}_description" class="form-control" placeholder="Description">
                             </td>
 
                             <td class="align-middle">
                                 <div class="row mx-auto">
+                                    <button class="btn btn-primary mr-2 convert-to-daily">Make Daily</button>
                                     <button class="btn btn-danger delete" id="delete-factor-{{cif.factor.id}}" type="button" data-factor-id="{{cif.factor.id}}">
                                         <i class="fa fa-times" aria-hidden="true"></i>
                                     </button>
@@ -109,6 +110,25 @@
                         </tr>
                     {% endfor %}
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td class="align-middle" colspan="4">
+                            <div class="row mx-auto">
+                                <select id="a-intermittent-factors" class="form-control factors col-lg-3 mr-2">
+                                    <option value="-1">Please select factor</option>
+                                    {% for factor in factors %}
+                                        <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.title}}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <button class="btn btn-success add" id="add-intermittent-factor" type="button">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
 
             <table class="table table-borderless cdf-list">
@@ -123,15 +143,15 @@
                 <tbody>
                     {% for cdf in cdf_list %}
                         <tr>
-                            <td class="align-middle" width="15%">
+                            <td class="align-middle" width="200px">
                                 <h5 class="mb-0">{{cdf.getFactorTitle}}</h5>
-                                <input type="hidden" name="factor_IDs" value="{{cdf.factor.id}}"/>
+                                <input type="hidden" name="factor_Daily_IDs" value="{{cdf.factor.id}}"/>
                             </td>
 
-                            <td class="align-middle" width="50%">
+                            <td class="align-middle" width="500px">
                                 <div class="row mx-auto">
                                     {% for level in cdf.getFactorLevels %}
-                                        <div class="col text-center">
+                                        <div class="col px-1 text-center">
                                             <label for="radio_{{cdf.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
                                             <input id="radio_{{cdf.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cdf.factor.id}}_level" value="{{forloop.counter}}"/>
                                         </div>
@@ -144,12 +164,13 @@
                                 </div>
                             </td>
 
-                            <td class="align-middle" width="20%">
+                            <td class="align-middle" width="200px">
                                 <input name="factor_{{cdf.factor.id}}_description" class="form-control" placeholder="Description">
                             </td>
 
                             <td class="align-middle">
                                 <div class="row mx-auto">
+                                    <button class="btn btn-primary mr-2 convert-to-intermittent">Make Intermittent</button>
                                     <button class="btn btn-danger delete" id="delete-factor-{{cdf.factor.id}}" type="button" data-factor-id="{{cdf.factor.id}}">
                                         <i class="fa fa-times" aria-hidden="true"></i>
                                     </button>
@@ -158,31 +179,29 @@
                         </tr>
                     {% endfor %}
                 </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td class="align-middle" colspan="4">
+                            <div class="row mx-auto">
+                                <select id="a-daily-factors" class="form-control factors col-lg-3 mr-2">
+                                    <option value="-1">Please select factor</option>
+                                    {% for factor in factors %}
+                                        <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.title}}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <button class="btn btn-success add" id="add-daily-factor" type="button">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
 
             <table class="table table-borderless factor-list">
                 <tfoot>
-                    <tr>
-                        <td class="align-middle" width="22%">
-                            <select class="form-control factors">
-                                <option value="-1">Please select factor</option>
-                                {% for factor in factors %}
-                                    <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.title}}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-
-                        <td class="align-middle" width="58%">
-                            <div class="row mx-auto">
-                                <button id="add-intermittent-factor" class="btn btn-primary mr-2">Add as an Intermittent Factor</button>
-                                <button id="add-daily-factor" class="btn btn-primary mr-auto">Add as a Daily Factor</button>
-                            </div>
-                        </td>
-
-                        <td width="20%"/>
-                        <td width="10%"/>
-                    </tr>
-
                     <tr>
                         <td colspan="4">
                             <div class="row mx-auto">

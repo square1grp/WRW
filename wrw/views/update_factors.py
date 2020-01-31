@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
-from wrw.models import User, Factor, CurrentIntermittentFactor, CurrentDailyFactor, UserFactors
+from wrw.models import User, Factor, CurrentIntermittentFactor, CurrentDailyFactor, UserFactors, UserIntermittentFactor, UserDailyFactor, LevelTransition, SkippedDate
 from wrw.utils import isUserLoggedIn
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
@@ -52,6 +52,20 @@ class UpdateFactorsPage(View):
 
         return uf
 
+    def createUserIntermittentFactor(self, uf, factor, selected_level, description):
+        uif = UserIntermittentFactor(
+            user_factors=uf, factor=factor, selected_level=selected_level, description=description)
+
+        uif.save()
+
+    def createUserDailyFactor(self, uf, factor, selected_level, description):
+        # create level transitions
+        # skipped dates
+        udf = UserDailyFactor(
+            user_factors=uf, factor=factor, selected_level=selected_level, description=description)
+
+        udf.save()
+
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 
@@ -65,17 +79,36 @@ class UpdateFactorsPage(View):
 
         params = request.POST
 
-        import pdb
-        pdb.set_trace()
-
         if params['action'] == 'add':
-            # update Current Intermittent Factors
-            self.updateCIFs(user, params.getlist('factor_Intermittent_IDs'))
-            # update Current Daily Factors
-            self.updateCDFs(user, params.getlist('factor_Daily_IDs'))
+            if 'selected_uf_id' in params:
+                # update Update Factors
+                uf = UserFactors.objects.get(
+                    id=params['selected_uf_id'])
 
-            uf = self.createUserFactors(
-                user, params['date'], params['time'], params['title'])
+                uf.created_at = datetime.strptime(
+                    '%s %s' % (params['date'], params['time']), '%m/%d/%Y %H:%M:%S')
+                uf.title = params['title']
+
+                uf.save()
+
+                uif_list = UserIntermittentFactor.objects.filter(
+                    user_factors=uf)
+                for uif in uif_list:
+                    uif.delete()
+
+                udf_list = UserDailyFactor.objects.filter(
+                    user_factors=uf)
+                for udf in udf_list:
+                    udf.delete()
+            else:
+                # update Current Intermittent Factors
+                self.updateCIFs(user, params.getlist(
+                    'factor_Intermittent_IDs'))
+                # update Current Daily Factors
+                self.updateCDFs(user, params.getlist('factor_Daily_IDs'))
+
+                uf = self.createUserFactors(
+                    user, params['date'], params['time'], params['title'])
 
             for factor_id in params.getlist('factor_Intermittent_IDs'):
                 factor = Factor.objects.get(id=factor_id)
@@ -88,6 +121,27 @@ class UpdateFactorsPage(View):
 
                 self.createUserIntermittentFactor(
                     uf, factor, selected_level, description)
+
+            for factor_id in params.getlist('factor_Daily_IDs'):
+                factor = Factor.objects.get(id=factor_id)
+
+                description_key = 'factor_%s_description' % factor_id
+                description = params[description_key] if description_key in params else ''
+
+                selected_level_key = 'factor_%s_level' % factor_id
+                selected_level = params[selected_level_key] if selected_level_key in params else None
+
+                self.createUserDailyFactor(
+                    uf, factor, selected_level, description)
+
+        elif params['action'] in ['edit', 'date_filter']:
+            if 'uf_id' in params:
+                kwargs['uf_id'] = params['uf_id']
+
+            if 'date_filter' in params:
+                kwargs['date_filter'] = params['date_filter']
+
+        return self.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
@@ -109,26 +163,77 @@ class UpdateFactorsPage(View):
         cdf_list = CurrentDailyFactor.objects.filter(
             user=user)
 
+        selected_uf = None
         factors = []
-        for factor in Factor.objects.all():
-            _factor = dict(
-                id=factor.id, title=factor.title, disabled=False)
+        if 'uf_id' in kwargs:
+            selected_uf = UserFactors.objects.get(
+                id=kwargs['uf_id'])
 
-            try:
-                CurrentIntermittentFactor.objects.get(user=user, factor=factor)
+            current_time = dict(
+                h='%02d' % selected_uf.created_at.hour,
+                m='%02d' % selected_uf.created_at.minute,
+                s='%02d' % selected_uf.created_at.second,
+            )
 
-                _factor['disabled'] = True
-            except ObjectDoesNotExist:
-                pass
+            for factor in Factor.objects.all():
+                _factor = dict(
+                    id=factor.id, title=factor.title, disabled=False)
+                try:
+                    UserIntermittentFactor.objects.get(
+                        user_factors=selected_uf, factor=factor)
 
-            try:
-                CurrentDailyFactor.objects.get(user=user, factor=factor)
+                    _factor['disabled'] = True
+                except ObjectDoesNotExist:
+                    pass
 
-                _factor['disabled'] = True
-            except ObjectDoesNotExist:
-                pass
+                try:
+                    UserDailyFactor.objects.get(
+                        user_factors=selected_uf, factor=factor)
 
-            factors.append(_factor)
+                    _factor['disabled'] = True
+                except ObjectDoesNotExist:
+                    pass
+
+                factors.append(_factor)
+
+            selected_uf = dict(
+                id=selected_uf.id,
+                title=selected_uf.title,
+                date=selected_uf.created_at.strftime('%m/%d/%Y'),
+                uif_list=[dict(
+                    id=uif.id,
+                    factor=uif.getFactor(),
+                    level=uif.getLevel(),
+                    description=uif.description
+                ) for uif in selected_uf.getUIFList()],
+                udf_list=[dict(
+                    id=udf.id,
+                    factor=udf.getFactor(),
+                    level=udf.getLevel(),
+                    description=udf.description
+                ) for udf in selected_uf.getUDFList()]
+            )
+        else:
+            for factor in Factor.objects.all():
+                _factor = dict(
+                    id=factor.id, title=factor.title, disabled=False)
+
+                try:
+                    CurrentIntermittentFactor.objects.get(
+                        user=user, factor=factor)
+
+                    _factor['disabled'] = True
+                except ObjectDoesNotExist:
+                    pass
+
+                try:
+                    CurrentDailyFactor.objects.get(user=user, factor=factor)
+
+                    _factor['disabled'] = True
+                except ObjectDoesNotExist:
+                    pass
+
+                factors.append(_factor)
 
         org_factors = [dict(
             id=factor.id,
@@ -136,11 +241,29 @@ class UpdateFactorsPage(View):
             levels=factor.getFactorLevels()
         ) for factor in Factor.objects.all()]
 
+        date_filter = datetime.now().strftime('%m/%d/%Y')
+        if 'date_filter' in kwargs:
+            date_filter = kwargs['date_filter']
+
+        uf_list = [dict(
+            id=uf.id,
+            date=uf.created_at.strftime('%m/%d/%Y'),
+            time=uf.created_at.strftime('%H:%M:%S'),
+            title=uf.title
+        ) for uf in UserFactors.objects.filter(
+            user=user,
+            created_at__range=(datetime.strptime('%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S'),
+                               datetime.strptime('%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S'))
+        ).order_by('-created_at')]
+
         return render(request, self.template_name, dict(
             user_id=user_id,
             cif_list=cif_list,
             cdf_list=cdf_list,
             factors=factors,
+            selected_uf=selected_uf,
+            uf_list=uf_list,
             org_factors=org_factors,
+            date_filter=date_filter,
             current_time=current_time
         ))

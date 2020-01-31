@@ -96,11 +96,15 @@ $(document).ready(function () {
     };
 
     $("form.uf-form button.convert-to-daily").click(function () {
+        $(this).parents("tr").remove()
+
         var factor_id = $(this).data("factor-id");
         convertToDailyFactor(factor_id);
     });
 
     $("form.uf-form button.convert-to-intermittent").click(function () {
+        $(this).parents("tr").remove()
+        
         var factor_id = $(this).data("factor-id");
         convertToIntermittentFactor(factor_id);
     });
@@ -120,5 +124,9 @@ $(document).ready(function () {
     $("form.uf-form button#add-daily-factor").click(function () {
         var factor_id = $("select#a-daily-factors").val();
         addFactor(factor_id, true);
+    });
+
+    $("#date_filter").change(function () {
+        $("form.date_filter").submit();
     });
 });

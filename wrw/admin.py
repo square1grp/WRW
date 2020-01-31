@@ -119,6 +119,23 @@ class CurrentDailyFactorAdmin(admin.ModelAdmin):
         'factor_title']
 
 
+class UserFactorsAdmin(admin.ModelAdmin):
+    list_display = [
+        'getUserFirstName',
+        'getUserLastName',
+        'getUserName',
+        'getUserEmail',
+        'title',
+        'created_at']
+
+    search_fields = [
+        'user__first_name',
+        'user__last_name',
+        'user__username',
+        'user__email',
+        'title']
+
+
 class UserIntermittentFactorAdmin(admin.ModelAdmin):
     list_display = [
         'getUserFirstName',
@@ -197,6 +214,7 @@ admin.site.register(UserSingleSymptomSeverity, UserSingleSymptomSeverityAdmin)
 admin.site.register(Factor, FactorAdmin)
 admin.site.register(CurrentIntermittentFactor, CurrentIntermittentFactorAdmin)
 admin.site.register(CurrentDailyFactor, CurrentDailyFactorAdmin)
+admin.site.register(UserFactors, UserFactorsAdmin)
 admin.site.register(UserIntermittentFactor, UserIntermittentFactorAdmin)
 admin.site.register(UserDailyFactor, UserDailyFactorAdmin)
 admin.site.register(LevelTransition, LevelTransitionAdmin)

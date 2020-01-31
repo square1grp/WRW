@@ -26,7 +26,6 @@
         </div>
 
         <form id="user_login" class="needs-validation col-12 col-lg-6 mb-0" method="POST" novalidate>
-            {% csrf_token %}
             <p style="color: red; {% if not incorrect_login %}visibility: hidden{% endif %}"><small>Username and password combination not recognized.</small></p>
 
             <div class="row">

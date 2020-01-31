@@ -122,7 +122,7 @@ class UserSymptomSeverities(models.Model):
     getUserEmail.short_description = 'Email'
 
     def getUSSSList(self):
-        return UserSingleSymptomSeverity.objects.filter(user_symptom_severities__id=self.id)
+        return UserSingleSymptomSeverity.objects.filter(user_symptom_severities=self)
 
 
 # User Single Symptom Severity
@@ -284,11 +284,20 @@ class UserFactors(models.Model):
         return self.user.email
     getUserEmail.short_description = 'Email'
 
+    def getUIFList(self):
+        return UserIntermittentFactor.objects.filter(user_factors=self)
+
+    def getUDFList(self):
+        return UserDailyFactor.objects.filter(user_factors=self)
+
+    def getUFList(self):
+        return [uf for uf in self.getUIFList()] + [uf for uf in self.getUDFList()]
+
 
 # User Intermittent Factor
 class UserIntermittentFactor(models.Model):
     user_factors = models.ForeignKey(
-        UserFactors, on_delete=models.CASCADE)
+        UserFactors, on_delete=models.CASCADE, blank=True, null=True)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     selected_level = models.SmallIntegerField(blank=True, null=True)
@@ -313,19 +322,22 @@ class UserIntermittentFactor(models.Model):
         return self.user_factors.getUserEmail()
     getUserEmail.short_description = 'Email'
 
+    def getFactor(self):
+        return self.factor
+
     def getFactorTitle(self):
         return self.factor.title
     getFactorTitle.short_description = 'Factor'
 
     def getLevel(self):
-        return getattr(self.factor, 'level_%s' % self.selected_level)
+        return getattr(self.factor, 'level_%s' % self.selected_level) if self.selected_level else None
     getLevel.short_description = 'Factor Level'
 
 
 # User Daily Factor
 class UserDailyFactor(models.Model):
     user_factors = models.ForeignKey(
-        UserFactors, on_delete=models.CASCADE)
+        UserFactors, on_delete=models.CASCADE, blank=True, null=True)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     selected_level = models.SmallIntegerField(blank=True, null=True)
@@ -350,12 +362,15 @@ class UserDailyFactor(models.Model):
         return self.user_factors.getUserEmail()
     getUserEmail.short_description = 'Email'
 
+    def getFactor(self):
+        return self.factor
+
     def getFactorTitle(self):
         return self.factor.title
     getFactorTitle.short_description = 'Factor'
 
     def getLevel(self):
-        return getattr(self.factor, 'level_%s' % self.selected_level)
+        return getattr(self.factor, 'level_%s' % self.selected_level) if self.selected_level else None
     getLevel.short_description = 'Factor Level'
 
 

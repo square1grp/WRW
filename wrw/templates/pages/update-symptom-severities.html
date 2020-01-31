@@ -23,8 +23,6 @@
         <h2 class="col-12 text-center">Update Symptom Severities</h2>
 
         <form class="uss-form w-100 needs-validation my-3" novalidate method="POST">
-            {% csrf_token %}
-
             <input type="hidden" name="action" value="add"/>
             
             {% if selected_uss %}
@@ -183,7 +181,6 @@
             <div class="row justify-content-md-center">
                 <div class="col-12 col-lg-3">
                     <form class="date_filter" method="POST">
-                        {% csrf_token %}
                         <input type="hidden" name="action" value="date_filter" />
                         {% if selected_uss %}
                             <input type="hidden" name="uss_id" value="{{selected_uss.id}}" />
@@ -221,8 +218,6 @@
                         <td class="align-middle">
                             <div class="row mx-auto">
                                 <form class="my-auto ml-auto mr-2" method="POST">
-                                    {% csrf_token %}
-
                                     <input type="hidden" name="action" value="edit"/>
                                     <input type="hidden" name="uss_id" value="{{uss.id}}"/>
                                     <input type="hidden" name="date_filter" value="{{date_filter}}"/>
@@ -233,8 +228,6 @@
                                 </form>
 
                                 <form class="my-auto" method="POST">
-                                    {% csrf_token %}
-
                                     <input type="hidden" name="action" value="delete"/>
                                     <input type="hidden" name="uss_id" value="{{uss.id}}"/>
                                     

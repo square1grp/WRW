@@ -3,9 +3,8 @@ from django.shortcuts import render
 from django.views import View
 from wrw.models import User, Symptom, CurrentUserSymptom, UserSymptomSeverities, UserSingleSymptomSeverity
 from wrw.utils import isUserLoggedIn
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.csrf import csrf_exempt
 
 
 class UpdateSymptomSeveritiesPage(View):
@@ -42,7 +41,6 @@ class UpdateSymptomSeveritiesPage(View):
 
         usss.save()
 
-    @csrf_exempt
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 

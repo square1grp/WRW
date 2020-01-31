@@ -4,13 +4,11 @@ from django.shortcuts import render
 from django.views import View
 from ..utils import isUserLoggedIn, gernerateUserToken
 from wrw.models import Symptom, User
-from django.views.decorators.csrf import csrf_exempt
 
 
 class IndexPage(View):
     template_name = 'pages/index.html'
 
-    @csrf_exempt
     def post(self, request, *args, **kwargs):
         params = request.POST
 

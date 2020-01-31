@@ -5,13 +5,43 @@ from wrw.models import User, Factor, CurrentIntermittentFactor, CurrentDailyFact
 from wrw.utils import isUserLoggedIn
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.decorators.csrf import csrf_exempt
 
 
 class UpdateFactorSeveritiesPage(View):
     template_name = 'pages/update-factor-severities.html'
 
-    @csrf_exempt
+    def updateCIFSs(self, user, factorIDs):
+        factors = Factor.objects.filter(id__in=factorIDs)
+
+        cif_list = CurrentIntermittentFactor.objects.filter(
+            user=user).exclude(factor__id__in=factorIDs)
+
+        for cif in cif_list:
+            cif.delete()
+
+        for factor in factors:
+            try:
+                CurrentIntermittentFactor.objects.get(user=user, factor=factor)
+            except ObjectDoesNotExist:
+                cif = CurrentIntermittentFactor(user=user, factor=factor)
+                cif.save()
+
+    def updateCDFS(self, user, factorIDs):
+        factors = Factor.objects.filter(id__in=factorIDs)
+
+        cdf_list = CurrentDailyFactor.objects.filter(
+            user=user).exclude(factor__id__in=factorIDs)
+
+        for cdf in cdf_list:
+            cdf.delete()
+
+        for factor in factors:
+            try:
+                CurrentDailyFactor.objects.get(user=user, factor=factor)
+            except ObjectDoesNotExist:
+                cdf = CurrentDailyFactor(user=user, factor=factor)
+                cdf.save()
+
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 
@@ -27,6 +57,11 @@ class UpdateFactorSeveritiesPage(View):
 
         import pdb
         pdb.set_trace()
+
+        if params['action'] == 'add':
+            self.updateCIFSs(user, params.getlist('factor_Intermittent_IDs'))
+            self.updateCDFS(user, params.getlist('factor_Daily_IDs'))
+            pass
 
     def get(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)

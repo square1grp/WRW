@@ -59,23 +59,51 @@ $(document).ready(function () {
                 if (factor['id'] == factor_id) {
                     var template = getTrHTML(factor['id'], factor['title'], factor['levels'], is_daily_factor);
 
-                    if (is_daily_factor)
+                    if (is_daily_factor) {
                         $("form.ufs-form table.cdf-list tbody").append(template);
-                    else
+                    } else {
                         $("form.ufs-form table.cif-list tbody").append(template);
+                    }
+
+                    $("form.ufs-form select.factors option[value=" + factor['id'] + "]").prop("disabled", true);
+                    $("form.ufs-form select.factors").val("-1");
+
+                    $("form.ufs-form button#convert-factor-" + factor['id']).click(function () {
+                        $(this).parents("tr").remove()
+
+                        if (is_daily_factor)
+                            convertToIntermittentFactor(factor['id']);
+                        else
+                            convertToDailyFactor(factor['id']);
+                    });
 
                     $("form.ufs-form button#delete-factor-" + factor['id']).click(function () {
                         $(this).parents("tr").remove()
 
                         $("form.ufs-form select.factors option[value=" + factor['id'] + "]").prop("disabled", false);
                     });
-
-                    $("form.ufs-form select.factors option[value=" + factor['id'] + "]").prop("disabled", true);
-                    $("form.ufs-form select.factors").val("-1");
                 }
             });
         }
     };
+
+    var convertToIntermittentFactor = function (factor_id) {
+        addFactor(factor_id, false);
+    };
+
+    var convertToDailyFactor = function (factor_id) {
+        addFactor(factor_id, true);
+    };
+
+    $("form.ufs-form button.convert-to-daily").click(function () {
+        var factor_id = $(this).data("factor-id");
+        convertToDailyFactor(factor_id);
+    });
+
+    $("form.ufs-form button.convert-to-intermittent").click(function () {
+        var factor_id = $(this).data("factor-id");
+        convertToIntermittentFactor(factor_id);
+    });
 
     $("form.ufs-form button.delete").click(function () {
         var factor_id = $(this).data("factor-id");

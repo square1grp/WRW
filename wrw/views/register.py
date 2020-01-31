@@ -7,7 +7,6 @@ from wrw.models import User
 from uuid import uuid4
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-from django.views.decorators.csrf import csrf_exempt
 from website.settings import SENDGRID_KEY, GOOGLE_CAPTCHA_KEY, GOOGLE_MAP_KEY
 
 
@@ -54,7 +53,6 @@ class RegisterPage(View):
             ]
         }
 
-    @csrf_exempt
     def post(self, request, *args, **kwargs):
         params = request.POST
 

@@ -25,7 +25,7 @@ class UpdateSymptomSeveritiesPage(View):
                 cus = CurrentUserSymptom(user=user, symptom=symptom)
                 cus.save()
 
-    def createUpdateSymptomSeverities(self, user, date, time, title):
+    def createUserSymptomSeverities(self, user, date, time, title):
         created_at = datetime.strptime(
             '%s %s' % (date, time), '%m/%d/%Y %H:%M:%S')
 
@@ -74,8 +74,8 @@ class UpdateSymptomSeveritiesPage(View):
                 # update Current User Symptoms
                 self.updateCUSs(user, params.getlist('symptom_IDs'))
 
-                # create Update Symptom Severities
-                uss = self.createUpdateSymptomSeverities(
+                # create User Symptom Severities
+                uss = self.createUserSymptomSeverities(
                     user, params['date'], params['time'], params['title'])
 
             for symptom_id in params.getlist('symptom_IDs'):

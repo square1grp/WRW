@@ -1,16 +1,16 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
-from wrw.models import User, Factor, CurrentIntermittentFactor, CurrentDailyFactor
+from wrw.models import User, Factor, CurrentIntermittentFactor, CurrentDailyFactor, UserFactors
 from wrw.utils import isUserLoggedIn
-from datetime import datetime, timedelta
+from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
 
-class UpdateFactorSeveritiesPage(View):
-    template_name = 'pages/update-factor-severities.html'
+class UpdateFactorsPage(View):
+    template_name = 'pages/update-factors.html'
 
-    def updateCIFSs(self, user, factorIDs):
+    def updateCIFs(self, user, factorIDs):
         factors = Factor.objects.filter(id__in=factorIDs)
 
         cif_list = CurrentIntermittentFactor.objects.filter(
@@ -26,7 +26,7 @@ class UpdateFactorSeveritiesPage(View):
                 cif = CurrentIntermittentFactor(user=user, factor=factor)
                 cif.save()
 
-    def updateCDFS(self, user, factorIDs):
+    def updateCDFs(self, user, factorIDs):
         factors = Factor.objects.filter(id__in=factorIDs)
 
         cdf_list = CurrentDailyFactor.objects.filter(
@@ -41,6 +41,16 @@ class UpdateFactorSeveritiesPage(View):
             except ObjectDoesNotExist:
                 cdf = CurrentDailyFactor(user=user, factor=factor)
                 cdf.save()
+
+    def createUserFactors(self, user, date, time, title):
+        created_at = datetime.strptime(
+            '%s %s' % (date, time), '%m/%d/%Y %H:%M:%S')
+
+        uf = UserFactors(
+            user=user, title=title, created_at=created_at)
+        uf.save()
+
+        return uf
 
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
@@ -59,9 +69,25 @@ class UpdateFactorSeveritiesPage(View):
         pdb.set_trace()
 
         if params['action'] == 'add':
-            self.updateCIFSs(user, params.getlist('factor_Intermittent_IDs'))
-            self.updateCDFS(user, params.getlist('factor_Daily_IDs'))
-            pass
+            # update Current Intermittent Factors
+            self.updateCIFs(user, params.getlist('factor_Intermittent_IDs'))
+            # update Current Daily Factors
+            self.updateCDFs(user, params.getlist('factor_Daily_IDs'))
+
+            uf = self.createUserFactors(
+                user, params['date'], params['time'], params['title'])
+
+            for factor_id in params.getlist('factor_Intermittent_IDs'):
+                factor = Factor.objects.get(id=factor_id)
+
+                description_key = 'factor_%s_description' % factor_id
+                description = params[description_key] if description_key in params else ''
+
+                selected_level_key = 'factor_%s_level' % factor_id
+                selected_level = params[selected_level_key] if selected_level_key in params else None
+
+                self.createUserIntermittentFactor(
+                    uf, factor, selected_level, description)
 
     def get(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)

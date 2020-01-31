@@ -60,15 +60,15 @@ $(document).ready(function () {
                     var template = getTrHTML(factor['id'], factor['title'], factor['levels'], is_daily_factor);
 
                     if (is_daily_factor) {
-                        $("form.ufs-form table.cdf-list tbody").append(template);
+                        $("form.uf-form table.cdf-list tbody").append(template);
                     } else {
-                        $("form.ufs-form table.cif-list tbody").append(template);
+                        $("form.uf-form table.cif-list tbody").append(template);
                     }
 
-                    $("form.ufs-form select.factors option[value=" + factor['id'] + "]").prop("disabled", true);
-                    $("form.ufs-form select.factors").val("-1");
+                    $("form.uf-form select.factors option[value=" + factor['id'] + "]").prop("disabled", true);
+                    $("form.uf-form select.factors").val("-1");
 
-                    $("form.ufs-form button#convert-factor-" + factor['id']).click(function () {
+                    $("form.uf-form button#convert-factor-" + factor['id']).click(function () {
                         $(this).parents("tr").remove()
 
                         if (is_daily_factor)
@@ -77,10 +77,10 @@ $(document).ready(function () {
                             convertToDailyFactor(factor['id']);
                     });
 
-                    $("form.ufs-form button#delete-factor-" + factor['id']).click(function () {
+                    $("form.uf-form button#delete-factor-" + factor['id']).click(function () {
                         $(this).parents("tr").remove()
 
-                        $("form.ufs-form select.factors option[value=" + factor['id'] + "]").prop("disabled", false);
+                        $("form.uf-form select.factors option[value=" + factor['id'] + "]").prop("disabled", false);
                     });
                 }
             });
@@ -95,29 +95,29 @@ $(document).ready(function () {
         addFactor(factor_id, true);
     };
 
-    $("form.ufs-form button.convert-to-daily").click(function () {
+    $("form.uf-form button.convert-to-daily").click(function () {
         var factor_id = $(this).data("factor-id");
         convertToDailyFactor(factor_id);
     });
 
-    $("form.ufs-form button.convert-to-intermittent").click(function () {
+    $("form.uf-form button.convert-to-intermittent").click(function () {
         var factor_id = $(this).data("factor-id");
         convertToIntermittentFactor(factor_id);
     });
 
-    $("form.ufs-form button.delete").click(function () {
+    $("form.uf-form button.delete").click(function () {
         var factor_id = $(this).data("factor-id");
         $(this).parents("tr").remove()
 
-        $("form.ufs-form select.factors option[value=" + factor_id + "]").prop("disabled", false);
+        $("form.uf-form select.factors option[value=" + factor_id + "]").prop("disabled", false);
     });
 
-    $("form.ufs-form button#add-intermittent-factor").click(function () {
+    $("form.uf-form button#add-intermittent-factor").click(function () {
         var factor_id = $("select#a-intermittent-factors").val();
         addFactor(factor_id, false)
     });
 
-    $("form.ufs-form button#add-daily-factor").click(function () {
+    $("form.uf-form button#add-daily-factor").click(function () {
         var factor_id = $("select#a-daily-factors").val();
         addFactor(factor_id, true);
     });

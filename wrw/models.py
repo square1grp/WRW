@@ -255,15 +255,15 @@ class CurrentDailyFactor(models.Model):
         return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(5)]
 
 
-# User Factor Severities
-class UserFactorSeverities(models.Model):
+# User Factors
+class UserFactors(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     created_at = models.DateTimeField('Created at', default=timezone.now)
 
     class Meta:
-        verbose_name = 'User-Factor Severities'
-        verbose_name_plural = 'Users-Factor Severities'
+        verbose_name = 'User-Factors'
+        verbose_name_plural = 'Users-Factors'
 
     def __str__(self):
         return self.title
@@ -287,8 +287,8 @@ class UserFactorSeverities(models.Model):
 
 # User Intermittent Factor
 class UserIntermittentFactor(models.Model):
-    user_factor_severities = models.ForeignKey(
-        UserFactorSeverities, on_delete=models.CASCADE)
+    user_factors = models.ForeignKey(
+        UserFactors, on_delete=models.CASCADE)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     selected_level = models.SmallIntegerField(blank=True, null=True)
@@ -298,19 +298,19 @@ class UserIntermittentFactor(models.Model):
         verbose_name_plural = 'User Intermittent Factors'
 
     def getUserFirstName(self):
-        return self.user_factor_severities.getUserFirstName()
+        return self.user_factors.getUserFirstName()
     getUserFirstName.short_description = 'First Name'
 
     def getUserLastName(self):
-        return self.user_factor_severities.getUserLastName()
+        return self.user_factors.getUserLastName()
     getUserLastName.short_description = 'Last Name'
 
     def getUserName(self):
-        return self.user_factor_severities.getUserName()
+        return self.user_factors.getUserName()
     getUserName.short_description = 'Username'
 
     def getUserEmail(self):
-        return self.user_factor_severities.getUserEmail()
+        return self.user_factors.getUserEmail()
     getUserEmail.short_description = 'Email'
 
     def getFactorTitle(self):
@@ -324,8 +324,8 @@ class UserIntermittentFactor(models.Model):
 
 # User Daily Factor
 class UserDailyFactor(models.Model):
-    user_factor_severities = models.ForeignKey(
-        UserFactorSeverities, on_delete=models.CASCADE)
+    user_factors = models.ForeignKey(
+        UserFactors, on_delete=models.CASCADE)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
     description = models.TextField(blank=True)
     selected_level = models.SmallIntegerField(blank=True, null=True)
@@ -335,19 +335,19 @@ class UserDailyFactor(models.Model):
         verbose_name_plural = 'User Daily Factors'
 
     def getUserFirstName(self):
-        return self.user_factor_severities.getUserFirstName()
+        return self.user_factors.getUserFirstName()
     getUserFirstName.short_description = 'First Name'
 
     def getUserLastName(self):
-        return self.user_factor_severities.getUserLastName()
+        return self.user_factors.getUserLastName()
     getUserLastName.short_description = 'Last Name'
 
     def getUserName(self):
-        return self.user_factor_severities.getUserName()
+        return self.user_factors.getUserName()
     getUserName.short_description = 'Username'
 
     def getUserEmail(self):
-        return self.user_factor_severities.getUserEmail()
+        return self.user_factors.getUserEmail()
     getUserEmail.short_description = 'Email'
 
     def getFactorTitle(self):

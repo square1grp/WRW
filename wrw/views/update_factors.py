@@ -134,6 +134,10 @@ class UpdateFactorsPage(View):
                 self.createUserDailyFactor(
                     uf, factor, selected_level, description)
 
+        elif params['action'] == 'delete':
+            uf = UserFactors.objects.get(id=params['uf_id'])
+            uf.delete()
+
         elif params['action'] in ['edit', 'date_filter']:
             if 'uf_id' in params:
                 kwargs['uf_id'] = params['uf_id']

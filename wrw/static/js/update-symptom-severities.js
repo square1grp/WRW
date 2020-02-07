@@ -41,11 +41,25 @@ var getTrHTML = function (symptomID, symptomName, symptomLevels) {
 };
 
 $(document).ready(function () {
+    var showAlert = function (msg) {
+        $(".alert strong").text(msg);
+        $(".alert").addClass("show");
+
+        setTimeout(function () {
+            $(".alert").removeClass("show");
+        }, 500);
+
+    };
+
     $("form.uss-form button.delete").click(function () {
         var symptom_id = $(this).data("symptom-id");
         $(this).parents("tr").remove()
 
-        $("form.uss-form select.symptoms option[value=" + symptom_id + "]").prop("disabled", false);
+        $.each(org_symptoms, function (idx, symptom) {
+            if (symptom["id"] == symptom_id) {
+                $("form.uss-form select.symptoms").append("<option value=" + symptom["id"] + ">" + symptom["name"] + "</option>");
+            }
+        });
     });
 
     $("form.uss-form button#add-symptom").click(function () {
@@ -53,18 +67,22 @@ $(document).ready(function () {
 
         if (symptom_id) {
             $.each(org_symptoms, function (idx, symptom) {
-                if (symptom['id'] == symptom_id) {
-                    var template = getTrHTML(symptom['id'], symptom['name'], symptom['levels']);
+                if (symptom["id"] == symptom_id) {
+                    var template = getTrHTML(symptom["id"], symptom["name"], symptom["levels"]);
 
                     $("form.uss-form table.cus-list tbody").append(template);
 
-                    $("form.uss-form button#delete-symptom-" + symptom['id']).click(function () {
+                    $("form.uss-form button#delete-symptom-" + symptom["id"]).click(function () {
                         $(this).parents("tr").remove()
 
-                        $("form.uss-form select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", false);
+                        $("form.uss-form select.symptoms").append("<option value=" + symptom["id"] + ">" + symptom["name"] + "</option>");
                     });
 
-                    $("form.uss-form select.symptoms option[value=" + symptom['id'] + "]").prop("disabled", true);
+                    $("form.uss-form tbody tr input[type=radio]").unbind().change(function () {
+                        showAlert("Data Modified");
+                    });
+
+                    $("form.uss-form select.symptoms option[value=" + symptom["id"] + "]").remove()
                     $("form.uss-form select.symptoms").val("-1");
                 }
             });
@@ -73,5 +91,21 @@ $(document).ready(function () {
 
     $("#date_filter").change(function () {
         $("form.date_filter").submit();
+    });
+
+    $("form.uss-form tbody tr input[type=radio]").change(function () {
+        showAlert("Data Modified");
+    });
+
+    $("form.uss-form").submit(function (e) {
+        if (!$("form.uss-form .form-control:invalid").length) {
+            e.preventDefault();
+
+            showAlert("Data Updated");
+
+            setTimeout(function () {
+                $("form.uss-form").unbind().submit();
+            }, 500);
+        }
     });
 });

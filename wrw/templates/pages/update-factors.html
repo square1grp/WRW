@@ -159,7 +159,9 @@
                                 <select id="a-intermittent-factors" class="form-control factors col-lg-3 mr-2">
                                     <option value="-1">Please select factor</option>
                                     {% for factor in factors %}
-                                        <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.title}}</option>
+                                        {% if not factor.disabled %}
+                                            <option value="{{factor.id}}">{{factor.title}}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
 
@@ -268,7 +270,9 @@
                                 <select id="a-daily-factors" class="form-control factors col-lg-3 mr-2">
                                     <option value="-1">Please select factor</option>
                                     {% for factor in factors %}
-                                        <option value="{{factor.id}}" {% if factor.disabled %}disabled{% endif %}>{{factor.title}}</option>
+                                        {% if not factor.disabled %}
+                                            <option value="{{factor.id}}">{{factor.title}}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
 
@@ -283,6 +287,16 @@
 
             <table class="table table-borderless factor-list">
                 <tfoot>
+                    <tr>
+                        <td colspan="4">
+                            <div class="row mx-auto">
+                                <div class="alert alert-warning fade m-auto text-center" role="alert">
+                                    <strong>Data Modified</strong>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
                     <tr>
                         <td colspan="4">
                             <div class="row mx-auto">

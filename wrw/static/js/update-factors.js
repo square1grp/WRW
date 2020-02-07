@@ -3,7 +3,7 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
         <tr>
             <td class="align-middle" width="200px">
                 <h5 class="mb-0">FactorTitle</h5>
-                <input type="hidden" name="factor_`+ (is_daily_factor ? 'Daily' : 'Intermittent') + `_IDs" value="FactorID"/>
+                <input type="hidden" name="factor_`+ (is_daily_factor ? "Daily" : "Intermittent") + `_IDs" value="FactorID"/>
             </td>
 
             <td class="align-middle" width="500px">
@@ -38,7 +38,7 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
 
             <td class="align-middle">
                 <div class="row mx-auto">
-                    <button id="convert-factor-FactorID" class="btn btn-primary mr-2">Make ` + (is_daily_factor ? `Intermittent` : 'Daily') + `</button>`;
+                    <button id="convert-factor-FactorID" class="btn btn-primary mr-2">Make ` + (is_daily_factor ? `Intermittent` : "Daily") + `</button>`;
 
     template += `
                     <button class="btn btn-danger delete" id="delete-factor-FactorID" type="button" data-factor-id="FactorID">
@@ -53,11 +53,21 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
 };
 
 $(document).ready(function () {
+    var showAlert = function (msg) {
+        $(".alert strong").text(msg);
+        $(".alert").addClass("show");
+
+        setTimeout(function () {
+            $(".alert").removeClass("show");
+        }, 500);
+
+    };
+
     var addFactor = function (factor_id, is_daily_factor) {
         if (factor_id) {
             $.each(org_factors, function (idx, factor) {
-                if (factor['id'] == factor_id) {
-                    var template = getTrHTML(factor['id'], factor['title'], factor['levels'], is_daily_factor);
+                if (factor["id"] == factor_id) {
+                    var template = getTrHTML(factor["id"], factor["title"], factor["levels"], is_daily_factor);
 
                     if (is_daily_factor) {
                         $("form.uf-form table.cdf-list tbody").append(template);
@@ -65,22 +75,26 @@ $(document).ready(function () {
                         $("form.uf-form table.cif-list tbody").append(template);
                     }
 
-                    $("form.uf-form select.factors option[value=" + factor['id'] + "]").prop("disabled", true);
+                    $("form.uf-form tbody tr input[type=radio], form.uf-form tbody tr input[type=checkbox]").unbind().change(function () {
+                        showAlert("Data Modified");
+                    });
+
+                    $("form.uf-form select.factors option[value=" + factor["id"] + "]").remove();
                     $("form.uf-form select.factors").val("-1");
 
-                    $("form.uf-form button#convert-factor-" + factor['id']).click(function () {
+                    $("form.uf-form button#convert-factor-" + factor["id"]).click(function () {
                         $(this).parents("tr").remove()
 
                         if (is_daily_factor)
-                            convertToIntermittentFactor(factor['id']);
+                            convertToIntermittentFactor(factor["id"]);
                         else
-                            convertToDailyFactor(factor['id']);
+                            convertToDailyFactor(factor["id"]);
                     });
 
-                    $("form.uf-form button#delete-factor-" + factor['id']).click(function () {
-                        $(this).parents("tr").remove()
+                    $("form.uf-form button#delete-factor-" + factor["id"]).click(function () {
+                        $(this).parents("tr").remove();
 
-                        $("form.uf-form select.factors option[value=" + factor['id'] + "]").prop("disabled", false);
+                        $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
                     });
                 }
             });
@@ -104,7 +118,7 @@ $(document).ready(function () {
 
     $("form.uf-form button.convert-to-intermittent").click(function () {
         $(this).parents("tr").remove()
-        
+
         var factor_id = $(this).data("factor-id");
         convertToIntermittentFactor(factor_id);
     });
@@ -112,8 +126,11 @@ $(document).ready(function () {
     $("form.uf-form button.delete").click(function () {
         var factor_id = $(this).data("factor-id");
         $(this).parents("tr").remove()
-
-        $("form.uf-form select.factors option[value=" + factor_id + "]").prop("disabled", false);
+        $.each(org_factors, function (idx, factor) {
+            if (factor["id"] == factor_id) {
+                $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
+            }
+        });
     });
 
     $("form.uf-form button#add-intermittent-factor").click(function () {
@@ -128,5 +145,21 @@ $(document).ready(function () {
 
     $("#date_filter").change(function () {
         $("form.date_filter").submit();
+    });
+
+    $("form.uf-form tbody tr input[type=radio], form.uf-form tbody tr input[type=checkbox]").change(function () {
+        showAlert("Data Modified");
+    });
+
+    $("form.uf-form").submit(function (e) {
+        if (!$("form.uf-form .form-control:invalid").length) {
+            e.preventDefault();
+
+            showAlert("Data Updated");
+
+            setTimeout(function () {
+                $("form.uf-form").unbind().submit();
+            }, 500);
+        }
     });
 });

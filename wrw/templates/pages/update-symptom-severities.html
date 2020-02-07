@@ -148,7 +148,9 @@
                             <select class="form-control symptoms">
                                 <option value="-1">Please select symptom</option>
                                 {% for symptom in symptoms %}
-                                    <option value="{{symptom.id}}" {% if symptom.disabled %}disabled{% endif %}>{{symptom.name}}</option>
+                                    {% if not symptom.disabled %}
+                                        <option value="{{symptom.id}}">{{symptom.name}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </td>
@@ -161,6 +163,16 @@
 
                         <td width="250px"/>
                         <td/>
+                    </tr>
+
+                    <tr>
+                        <td colspan="4">
+                            <div class="row mx-auto">
+                                <div class="alert alert-warning fade m-auto text-center" role="alert">
+                                    <strong>Data Modified</strong>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
 
                     <tr>

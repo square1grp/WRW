@@ -249,16 +249,26 @@ class UpdateFactorsPage(View):
         if 'date_filter' in kwargs:
             date_filter = kwargs['date_filter']
 
-        uf_list = [dict(
-            id=uf.id,
-            date=uf.created_at.strftime('%m/%d/%Y'),
-            time=uf.created_at.strftime('%H:%M:%S'),
-            title=uf.title
-        ) for uf in UserFactors.objects.filter(
-            user=user,
-            created_at__range=(datetime.strptime('%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S'),
-                               datetime.strptime('%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S'))
-        ).order_by('-created_at')]
+        try:
+            start_timestamp = datetime.strptime(
+                '%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S')
+            end_timestamp = datetime.strptime(
+                '%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S')
+
+            uf_list = [dict(
+                id=uf.id,
+                date=uf.created_at.strftime('%m/%d/%Y'),
+                time=uf.created_at.strftime('%H:%M:%S'),
+                title=uf.title
+            ) for uf in UserFactors.objects.filter(user=user, created_at__range=(start_timestamp, end_timestamp)).order_by('-created_at')]
+        except:
+
+            uf_list = [dict(
+                id=uf.id,
+                date=uf.created_at.strftime('%m/%d/%Y'),
+                time=uf.created_at.strftime('%H:%M:%S'),
+                title=uf.title
+            ) for uf in UserFactors.objects.filter(user=user).order_by('-created_at')]
 
         return render(request, self.template_name, dict(
             user_id=user_id,

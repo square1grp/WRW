@@ -179,16 +179,25 @@ class UpdateSymptomSeveritiesPage(View):
             levels=symptom.getSymptomLevels()
         ) for symptom in Symptom.objects.all()]
 
-        uss_list = [dict(
-            id=uss.id,
-            date=uss.created_at.strftime('%m/%d/%Y'),
-            time=uss.created_at.strftime('%H:%M:%S'),
-            title=uss.title
-        ) for uss in UserSymptomSeverities.objects.filter(
-            user=user,
-            created_at__range=(datetime.strptime('%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S'),
-                               datetime.strptime('%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S'))
-        ).order_by('-created_at')]
+        try:
+            start_timestamp = datetime.strptime(
+                '%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S')
+            end_timestamp = datetime.strptime(
+                '%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S')
+
+            uss_list = [dict(
+                id=uss.id,
+                date=uss.created_at.strftime('%m/%d/%Y'),
+                time=uss.created_at.strftime('%H:%M:%S'),
+                title=uss.title
+            ) for uss in UserSymptomSeverities.objects.filter(user=user, created_at__range=(start_timestamp, end_timestamp)).order_by('-created_at')]
+        except:
+            uss_list = [dict(
+                id=uss.id,
+                date=uss.created_at.strftime('%m/%d/%Y'),
+                time=uss.created_at.strftime('%H:%M:%S'),
+                title=uss.title
+            ) for uss in UserSymptomSeverities.objects.filter(user=user).order_by('-created_at')]
 
         return render(request, self.template_name, dict(
             user_id=user_id,

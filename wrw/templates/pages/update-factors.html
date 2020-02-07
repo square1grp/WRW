@@ -142,9 +142,9 @@
                                 <td class="align-middle">
                                     <div class="row mx-auto">
                                         <button class="btn btn-primary mr-2 convert-to-daily" data-factor-id="{{cif.factor.id}}">Make Daily</button>
-                                        <button class="btn btn-danger delete" id="delete-factor-{{cif.factor.id}}" type="button" data-factor-id="{{cif.factor.id}}">
+                                        <a class="btn btn-danger delete" href="/user/{{user_id}}/update_factors/?action=delete_cif&factor_id={{cif.factor.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

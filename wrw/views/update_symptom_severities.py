@@ -114,6 +114,14 @@ class UpdateSymptomSeveritiesPage(View):
         except ObjectDoesNotExist:
             return HttpResponse('No user.')
 
+        params = request.GET
+        if 'action' in params and params['action'] == 'delete_cus':
+            symptom_id = params['symptom_id']
+            cus = CurrentUserSymptom.objects.get(user=user, symptom__id=symptom_id)
+            cus.delete()
+
+            return HttpResponseRedirect('/user/%s/update_symptom_severities' % user_id)
+
         cus_list = CurrentUserSymptom.objects.filter(user=user)
 
         current_time = dict(h='%02d' % datetime.now().hour,

@@ -158,6 +158,14 @@ class UpdateFactorsPage(View):
         except ObjectDoesNotExist:
             return HttpResponse('No user.')
 
+        params = request.GET
+        if 'action' in params and params['action'] == 'delete_cif':
+            factor_id = params['factor_id']
+            cif = CurrentIntermittentFactor.objects.get(user=user, factor__id=factor_id)
+            cif.delete()
+
+            return HttpResponseRedirect('/user/%s/update_factors' % user_id)
+
         current_time = dict(h='%02d' % datetime.now().hour,
                             m='%02d' % datetime.now().minute,
                             s='%02d' % datetime.now().second)

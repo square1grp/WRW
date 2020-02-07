@@ -132,9 +132,9 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-danger delete" id="delete-symptom-{{cus.symptom.id}}" type="button" data-symptom-id="{{cus.symptom.id}}">
+                                        <a class="btn btn-danger delete" href="/user/{{user_id}}/update_symptom_severities?action=delete_cus&symptom_id={{cus.symptom.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

@@ -135,7 +135,16 @@ $(document).ready(function () {
 
     $("form.uf-form button#add-intermittent-factor").click(function () {
         var factor_id = $("select#a-intermittent-factors").val();
-        addFactor(factor_id, false)
+
+        if (factor_id) {
+            if ($(this).hasClass("add-cif")) {
+                if (factor_id > 0) {
+                    window.location.href = "/user/" + user_id + "/update_factors/?action=add_cif&factor_id=" + factor_id;
+                }
+            } else {
+                addFactor(factor_id, false)
+            }
+        }
     });
 
     $("form.uf-form button#add-daily-factor").click(function () {

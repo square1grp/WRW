@@ -66,26 +66,32 @@ $(document).ready(function () {
         var symptom_id = $("select.symptoms").val();
 
         if (symptom_id) {
-            $.each(org_symptoms, function (idx, symptom) {
-                if (symptom["id"] == symptom_id) {
-                    var template = getTrHTML(symptom["id"], symptom["name"], symptom["levels"]);
-
-                    $("form.uss-form table.cus-list tbody").append(template);
-
-                    $("form.uss-form button#delete-symptom-" + symptom["id"]).click(function () {
-                        $(this).parents("tr").remove()
-
-                        $("form.uss-form select.symptoms").append("<option value=" + symptom["id"] + ">" + symptom["name"] + "</option>");
-                    });
-
-                    $("form.uss-form tbody tr input[type=radio]").unbind().change(function () {
-                        showAlert("Data Modified");
-                    });
-
-                    $("form.uss-form select.symptoms option[value=" + symptom["id"] + "]").remove()
-                    $("form.uss-form select.symptoms").val("-1");
+            if ($(this).hasClass("add-cus")) {
+                if (symptom_id > 0) {
+                    window.location.href = "/user/" + user_id + "/update_symptom_severities/?action=add_cus&symptom_id=" + symptom_id;
                 }
-            });
+            } else {
+                $.each(org_symptoms, function (idx, symptom) {
+                    if (symptom["id"] == symptom_id) {
+                        var template = getTrHTML(symptom["id"], symptom["name"], symptom["levels"]);
+
+                        $("form.uss-form table.cus-list tbody").append(template);
+
+                        $("form.uss-form button#delete-symptom-" + symptom["id"]).click(function () {
+                            $(this).parents("tr").remove()
+
+                            $("form.uss-form select.symptoms").append("<option value=" + symptom["id"] + ">" + symptom["name"] + "</option>");
+                        });
+
+                        $("form.uss-form tbody tr input[type=radio]").unbind().change(function () {
+                            showAlert("Data Modified");
+                        });
+
+                        $("form.uss-form select.symptoms option[value=" + symptom["id"] + "]").remove()
+                        $("form.uss-form select.symptoms").val("-1");
+                    }
+                });
+            }
         }
     });
 

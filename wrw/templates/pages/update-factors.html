@@ -7,7 +7,8 @@
 <script src="{% static 'js/update-factors.js' %}"></script>
 
 <script>
-    var org_factors = {{org_factors|safe}}
+    var user_id={{user_id}};
+    var org_factors = {{org_factors|safe}};
 </script>
 
 {% endblock %}
@@ -165,7 +166,7 @@
                                     {% endfor %}
                                 </select>
 
-                                <button class="btn btn-success add" id="add-intermittent-factor" type="button">
+                                <button class="btn btn-success add {% if not selected_uf %} add-cif {% endif %}" id="add-intermittent-factor" type="button">
                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                 </button>
                             </div>

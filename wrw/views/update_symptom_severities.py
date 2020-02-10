@@ -10,21 +10,6 @@ from django.core.exceptions import ObjectDoesNotExist
 class UpdateSymptomSeveritiesPage(View):
     template_name = 'pages/update-symptom-severities.html'
 
-    def updateCUSs(self, user, symptomIDs=[]):
-        symptoms = Symptom.objects.filter(id__in=symptomIDs)
-
-        cus_list = CurrentUserSymptom.objects.filter(
-            user=user).exclude(symptom__id__in=symptomIDs)
-        for cus in cus_list:
-            cus.delete()
-
-        for symptom in symptoms:
-            try:
-                CurrentUserSymptom.objects.get(user=user, symptom=symptom)
-            except ObjectDoesNotExist:
-                cus = CurrentUserSymptom(user=user, symptom=symptom)
-                cus.save()
-
     def createUserSymptomSeverities(self, user, date, time, title):
         created_at = datetime.strptime(
             '%s %s' % (date, time), '%m/%d/%Y %H:%M:%S')
@@ -71,9 +56,6 @@ class UpdateSymptomSeveritiesPage(View):
                 for usss in usss_list:
                     usss.delete()
             else:
-                # update Current User Symptoms
-                self.updateCUSs(user, params.getlist('symptom_IDs'))
-
                 # create User Symptom Severities
                 uss = self.createUserSymptomSeverities(
                     user, params['date'], params['time'], params['title'])
@@ -115,10 +97,18 @@ class UpdateSymptomSeveritiesPage(View):
             return HttpResponse('No user.')
 
         params = request.GET
-        if 'action' in params and params['action'] == 'delete_cus':
-            symptom_id = params['symptom_id']
-            cus = CurrentUserSymptom.objects.get(user=user, symptom__id=symptom_id)
-            cus.delete()
+        if 'action' in params:
+            if params['action'] == 'delete_cus':
+                symptom_id = params['symptom_id']
+                cus = CurrentUserSymptom.objects.get(
+                    user=user, symptom__id=symptom_id)
+                cus.delete()
+
+            elif params['action'] == "add_cus":
+                symptom_id = params['symptom_id']
+                cus = CurrentUserSymptom(
+                    user=user, symptom=Symptom.objects.get(id=symptom_id))
+                cus.save()
 
             return HttpResponseRedirect('/user/%s/update_symptom_severities' % user_id)
 

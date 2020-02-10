@@ -159,10 +159,24 @@ class UpdateFactorsPage(View):
             return HttpResponse('No user.')
 
         params = request.GET
-        if 'action' in params and params['action'] == 'delete_cif':
-            factor_id = params['factor_id']
-            cif = CurrentIntermittentFactor.objects.get(user=user, factor__id=factor_id)
-            cif.delete()
+        if 'action' in params:
+            if params['action'] == 'delete_cif':
+                factor_id = params['factor_id']
+                try:
+                    cif = CurrentIntermittentFactor.objects.get(
+                        user=user, factor__id=factor_id)
+                    cif.delete()
+                except:
+                    pass
+
+            elif params['action'] == 'add_cif':
+                factor_id = params['factor_id']
+                try:
+                    cif = CurrentIntermittentFactor(
+                        user=user, factor=Factor.objects.get(id=factor_id))
+                    cif.save()
+                except:
+                    pass
 
             return HttpResponseRedirect('/user/%s/update_factors' % user_id)
 

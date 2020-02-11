@@ -263,8 +263,9 @@ class UserFactors(models.Model):
         udfs_last = UserDailyFactorStart.objects.filter(
             user=self.user, created_at__lt=self.created_at).order_by('-created_at').last()
 
-        if udfs_last.getEndedAt() and udfs_last.getEndedAt() > self.created_at:
-            udfs_list.append(udfs_last)
+        if udfs_last and udfs_last not in udfs_list:
+            if udfs_last.getEndedAt() and udfs_last.getEndedAt() > self.created_at:
+                udfs_list.append(udfs_last)
 
         return udfs_list
 

@@ -66,7 +66,7 @@ $(document).ready(function () {
         var symptom_id = $("select.symptoms").val();
 
         if (symptom_id) {
-            if ($(this).hasClass("add-cus")) {
+            if ($(this).hasClass("cus")) {
                 if (symptom_id > 0) {
                     window.location.href = "/user/" + user_id + "/update_symptom_severities/?action=add_cus&symptom_id=" + symptom_id;
                 }

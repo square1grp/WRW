@@ -103,22 +103,6 @@ class CurrentIntermittentFactorAdmin(admin.ModelAdmin):
         'factor_title']
 
 
-class CurrentDailyFactorAdmin(admin.ModelAdmin):
-    list_display = [
-        'getUserFirstName',
-        'getUserLastName',
-        'getUserName',
-        'getUserEmail',
-        'getFactorTitle']
-
-    search_fields = [
-        'user__first_name',
-        'user__last_name',
-        'user__username',
-        'user__email',
-        'factor_title']
-
-
 class UserFactorsAdmin(admin.ModelAdmin):
     list_display = [
         'getUserFirstName',
@@ -153,59 +137,6 @@ class UserIntermittentFactorAdmin(admin.ModelAdmin):
         'factor_title']
 
 
-class UserDailyFactorAdmin(admin.ModelAdmin):
-    list_display = [
-        'getUserFirstName',
-        'getUserLastName',
-        'getUserName',
-        'getUserEmail',
-        'getFactorTitle',
-        'getLevel']
-
-    search_fields = [
-        'user__first_name',
-        'user__last_name',
-        'user__username',
-        'user__email',
-        'factor_title']
-
-
-class LevelTransitionAdmin(admin.ModelAdmin):
-    list_display = [
-        'getUserFirstName',
-        'getUserLastName',
-        'getUserName',
-        'getUserEmail',
-        'getFactorTitle',
-        'getLevel',
-        'created_at']
-
-    search_fields = [
-        'user_daily_factor__user__first_name',
-        'user_daily_factor__user__last_name',
-        'user_daily_factor__user__username',
-        'user_daily_factor__user__email',
-        'user_daily_factor__factor_title']
-
-
-class SkippedDateAdmin(admin.ModelAdmin):
-    list_display = [
-        'getUserFirstName',
-        'getUserLastName',
-        'getUserName',
-        'getUserEmail',
-        'getFactorTitle',
-        'getLevel',
-        'created_at']
-
-    search_fields = [
-        'user_daily_factor__user__first_name',
-        'user_daily_factor__user__last_name',
-        'user_daily_factor__user__username',
-        'user_daily_factor__user__email',
-        'user_daily_factor__factor_title']
-
-
 admin.site.register(User, UserAdmin)
 admin.site.register(Symptom, SymptomAdmin)
 admin.site.register(CurrentUserSymptom, CurrentUserSymptomAdmin)
@@ -213,9 +144,8 @@ admin.site.register(UserSymptomSeverities, UserSymptomSeveritiesAdmin)
 admin.site.register(UserSingleSymptomSeverity, UserSingleSymptomSeverityAdmin)
 admin.site.register(Factor, FactorAdmin)
 admin.site.register(CurrentIntermittentFactor, CurrentIntermittentFactorAdmin)
-admin.site.register(CurrentDailyFactor, CurrentDailyFactorAdmin)
 admin.site.register(UserFactors, UserFactorsAdmin)
 admin.site.register(UserIntermittentFactor, UserIntermittentFactorAdmin)
-admin.site.register(UserDailyFactor, UserDailyFactorAdmin)
-admin.site.register(LevelTransition, LevelTransitionAdmin)
-admin.site.register(SkippedDate, SkippedDateAdmin)
+admin.site.register(UserDailyFactorStart)
+admin.site.register(UserDailyFactorEnd)
+admin.site.register(UserDailyFactorMeta)

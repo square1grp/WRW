@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
-from wrw.models import User, Factor, CurrentIntermittentFactor, CurrentDailyFactor, UserFactors, UserIntermittentFactor, UserDailyFactor, LevelTransition, SkippedDate
+from wrw.models import User, Factor, CurrentIntermittentFactor, UserFactors, UserIntermittentFactor, UserDailyFactorStart, UserDailyFactorEnd, UserDailyFactorMeta
 from wrw.utils import isUserLoggedIn
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,22 +26,6 @@ class UpdateFactorsPage(View):
                 cif = CurrentIntermittentFactor(user=user, factor=factor)
                 cif.save()
 
-    def updateCDFs(self, user, factorIDs):
-        factors = Factor.objects.filter(id__in=factorIDs)
-
-        cdf_list = CurrentDailyFactor.objects.filter(
-            user=user).exclude(factor__id__in=factorIDs)
-
-        for cdf in cdf_list:
-            cdf.delete()
-
-        for factor in factors:
-            try:
-                CurrentDailyFactor.objects.get(user=user, factor=factor)
-            except ObjectDoesNotExist:
-                cdf = CurrentDailyFactor(user=user, factor=factor)
-                cdf.save()
-
     def createUserFactors(self, user, date, time, title):
         created_at = datetime.strptime(
             '%s %s' % (date, time), '%m/%d/%Y %H:%M:%S')
@@ -58,13 +42,23 @@ class UpdateFactorsPage(View):
 
         uif.save()
 
-    def createUserDailyFactor(self, uf, factor, selected_level, description):
-        # create level transitions
-        # skipped dates
-        udf = UserDailyFactor(
-            user_factors=uf, factor=factor, selected_level=selected_level, description=description)
+    def updateUserDailyFactorMeta(self, udfs, selected_level, description, created_at, is_selected_uf=False):
+        udfm = udfs.getTheLatestMeta()
 
-        udf.save()
+        if udfm:
+            if is_selected_uf:
+                udfm.selected_level = int(selected_level)
+                udfm.description = description
+
+                udfm.save()
+
+            if udfm.selected_level == int(selected_level):
+                return
+
+        udfm = UserDailyFactorMeta(
+            user_daily_factor_start=udfs, selected_level=selected_level, description=description, created_at=created_at)
+
+        udfm.save()
 
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
@@ -85,8 +79,7 @@ class UpdateFactorsPage(View):
                 uf = UserFactors.objects.get(
                     id=params['selected_uf_id'])
 
-                uf.created_at = datetime.strptime(
-                    '%s %s' % (params['date'], params['time']), '%m/%d/%Y %H:%M:%S')
+                # uf.created_at = datetime.strptime('%s %s' % (params['date'], params['time']), '%m/%d/%Y %H:%M:%S')
                 uf.title = params['title']
 
                 uf.save()
@@ -95,18 +88,7 @@ class UpdateFactorsPage(View):
                     user_factors=uf)
                 for uif in uif_list:
                     uif.delete()
-
-                udf_list = UserDailyFactor.objects.filter(
-                    user_factors=uf)
-                for udf in udf_list:
-                    udf.delete()
             else:
-                # update Current Intermittent Factors
-                self.updateCIFs(user, params.getlist(
-                    'factor_Intermittent_IDs'))
-                # update Current Daily Factors
-                self.updateCDFs(user, params.getlist('factor_Daily_IDs'))
-
                 uf = self.createUserFactors(
                     user, params['date'], params['time'], params['title'])
 
@@ -119,20 +101,22 @@ class UpdateFactorsPage(View):
                 selected_level_key = 'factor_%s_level' % factor_id
                 selected_level = params[selected_level_key] if selected_level_key in params else None
 
+                # create user intermittent factor
                 self.createUserIntermittentFactor(
                     uf, factor, selected_level, description)
 
-            for factor_id in params.getlist('factor_Daily_IDs'):
-                factor = Factor.objects.get(id=factor_id)
+            for udfs_id in params.getlist('udfs_IDs'):
+                udfs = UserDailyFactorStart.objects.get(id=udfs_id)
 
-                description_key = 'factor_%s_description' % factor_id
+                description_key = 'udfs_%s_description' % udfs_id
                 description = params[description_key] if description_key in params else ''
 
-                selected_level_key = 'factor_%s_level' % factor_id
+                selected_level_key = 'udfs_%s_level' % udfs_id
                 selected_level = params[selected_level_key] if selected_level_key in params else None
 
-                self.createUserDailyFactor(
-                    uf, factor, selected_level, description)
+                # create user daily factor meta
+                self.updateUserDailyFactorMeta(
+                    udfs, selected_level, description, uf.created_at, 'selected_uf_id' in params)
 
         elif params['action'] == 'delete':
             uf = UserFactors.objects.get(id=params['uf_id'])
@@ -162,6 +146,7 @@ class UpdateFactorsPage(View):
         if 'action' in params:
             if params['action'] == 'delete_cif':
                 factor_id = params['factor_id']
+
                 try:
                     cif = CurrentIntermittentFactor.objects.get(
                         user=user, factor__id=factor_id)
@@ -171,10 +156,40 @@ class UpdateFactorsPage(View):
 
             elif params['action'] == 'add_cif':
                 factor_id = params['factor_id']
+
                 try:
                     cif = CurrentIntermittentFactor(
                         user=user, factor=Factor.objects.get(id=factor_id))
                     cif.save()
+                except:
+                    pass
+
+            elif params['action'] == 'add_udfs':
+                factor_id = params['factor_id']
+
+                started_at = '%s %s' % (params['date'], params['time'])
+                started_at = datetime.strptime(started_at, '%m/%d/%Y %H:%M:%S')
+
+                try:
+                    udfs = UserDailyFactorStart(
+                        user=user, factor=Factor.objects.get(id=factor_id), created_at=started_at)
+
+                    udfs.save()
+                except:
+                    pass
+            elif params['action'] == 'add_udfe':
+                udfs_id = params['udfs_id']
+
+                started_at = '%s %s' % (params['date'], params['time'])
+                started_at = datetime.strptime(started_at, '%m/%d/%Y %H:%M:%S')
+
+                try:
+                    udfs = UserDailyFactorStart.objects.get(id=udfs_id)
+
+                    udfe = UserDailyFactorEnd(
+                        user_daily_factor_start=udfs, created_at=started_at)
+
+                    udfe.save()
                 except:
                     pass
 
@@ -186,8 +201,9 @@ class UpdateFactorsPage(View):
 
         cif_list = CurrentIntermittentFactor.objects.filter(
             user=user)
-        cdf_list = CurrentDailyFactor.objects.filter(
-            user=user)
+
+        udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(
+            user=user) if not udfs.isEnded()]
 
         selected_uf = None
         factors = []
@@ -212,14 +228,6 @@ class UpdateFactorsPage(View):
                 except ObjectDoesNotExist:
                     pass
 
-                try:
-                    UserDailyFactor.objects.get(
-                        user_factors=selected_uf, factor=factor)
-
-                    _factor['disabled'] = True
-                except ObjectDoesNotExist:
-                    pass
-
                 factors.append(_factor)
 
             selected_uf = dict(
@@ -232,12 +240,12 @@ class UpdateFactorsPage(View):
                     level=uif.getLevel(),
                     description=uif.description
                 ) for uif in selected_uf.getUIFList()],
-                udf_list=[dict(
-                    id=udf.id,
-                    factor=udf.getFactor(),
-                    level=udf.getLevel(),
-                    description=udf.description
-                ) for udf in selected_uf.getUDFList()]
+                udfs_list=[dict(
+                    id=udfs.id,
+                    factor=udfs.getFactor(),
+                    level=udfs.getLevel(),
+                    description=udfs.getDescription()
+                ) for udfs in selected_uf.getUDFSList()]
             )
         else:
             for factor in Factor.objects.all():
@@ -252,12 +260,8 @@ class UpdateFactorsPage(View):
                 except ObjectDoesNotExist:
                     pass
 
-                try:
-                    CurrentDailyFactor.objects.get(user=user, factor=factor)
-
+                if factor in [udfs.factor for udfs in udfs_list]:
                     _factor['disabled'] = True
-                except ObjectDoesNotExist:
-                    pass
 
                 factors.append(_factor)
 
@@ -295,7 +299,7 @@ class UpdateFactorsPage(View):
         return render(request, self.template_name, dict(
             user_id=user_id,
             cif_list=cif_list,
-            cdf_list=cdf_list,
+            udfs_list=udfs_list,
             factors=factors,
             selected_uf=selected_uf,
             uf_list=uf_list,

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from datetime import datetime
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # User Model
@@ -177,6 +178,7 @@ class Factor(models.Model):
     level_3 = models.CharField(max_length=50, default='Medium')
     level_4 = models.CharField(max_length=50, default='High')
     level_5 = models.CharField(max_length=50, default='Max')
+    level_6 = 'Skipped?'
 
     class Meta:
         verbose_name = 'Factor'
@@ -186,7 +188,7 @@ class Factor(models.Model):
         return self.title
 
     def getFactorLevels(self):
-        return [getattr(self, 'level_%s' % (i+1)) for i in range(5)]
+        return [getattr(self, 'level_%s' % (i+1)) for i in range(6)]
 
 
 # Current Intermittent Factor
@@ -219,40 +221,7 @@ class CurrentIntermittentFactor(models.Model):
     getFactorTitle.short_description = 'Factor'
 
     def getFactorLevels(self):
-        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(5)]
-
-
-# Current Daily Factor
-class CurrentDailyFactor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = 'Current Daily Factor'
-        verbose_name_plural = 'Current Daily Factors'
-
-    def getUserFirstName(self):
-        return self.user.first_name
-    getUserFirstName.short_description = 'First Name'
-
-    def getUserLastName(self):
-        return self.user.last_name
-    getUserLastName.short_description = 'Last Name'
-
-    def getUserName(self):
-        return self.user.username
-    getUserName.short_description = 'Username'
-
-    def getUserEmail(self):
-        return self.user.email
-    getUserEmail.short_description = 'Email'
-
-    def getFactorTitle(self):
-        return self.factor.title
-    getFactorTitle.short_description = 'Factor'
-
-    def getFactorLevels(self):
-        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(5)]
+        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(6)]
 
 
 # User Factors
@@ -287,11 +256,17 @@ class UserFactors(models.Model):
     def getUIFList(self):
         return UserIntermittentFactor.objects.filter(user_factors=self)
 
-    def getUDFList(self):
-        return UserDailyFactor.objects.filter(user_factors=self)
+    def getUDFSList(self):
+        udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(
+            user=self.user, created_at__lt=self.created_at) if not udfs.isEnded()]
 
-    def getUFList(self):
-        return [uf for uf in self.getUIFList()] + [uf for uf in self.getUDFList()]
+        udfs_last = UserDailyFactorStart.objects.filter(
+            user=self.user, created_at__lt=self.created_at).order_by('-created_at').last()
+
+        if udfs_last.getEndedAt() and udfs_last.getEndedAt() > self.created_at:
+            udfs_list.append(udfs_last)
+
+        return udfs_list
 
 
 # User Intermittent Factor
@@ -334,33 +309,15 @@ class UserIntermittentFactor(models.Model):
     getLevel.short_description = 'Factor Level'
 
 
-# User Daily Factor
-class UserDailyFactor(models.Model):
-    user_factors = models.ForeignKey(
-        UserFactors, on_delete=models.CASCADE, blank=True, null=True)
+# User Daily Factor Start
+class UserDailyFactorStart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
-    description = models.TextField(blank=True)
-    selected_level = models.SmallIntegerField(blank=True, null=True)
+    created_at = models.DateTimeField('Created at', default=timezone.now)
 
     class Meta:
-        verbose_name = 'User Daily Factor'
-        verbose_name_plural = 'User Daily Factors'
-
-    def getUserFirstName(self):
-        return self.user_factors.getUserFirstName()
-    getUserFirstName.short_description = 'First Name'
-
-    def getUserLastName(self):
-        return self.user_factors.getUserLastName()
-    getUserLastName.short_description = 'Last Name'
-
-    def getUserName(self):
-        return self.user_factors.getUserName()
-    getUserName.short_description = 'Username'
-
-    def getUserEmail(self):
-        return self.user_factors.getUserEmail()
-    getUserEmail.short_description = 'Email'
+        verbose_name = 'User Daily Factor Start'
+        verbose_name_plural = 'User Daily Factor Starts'
 
     def getFactor(self):
         return self.factor
@@ -369,75 +326,63 @@ class UserDailyFactor(models.Model):
         return self.factor.title
     getFactorTitle.short_description = 'Factor'
 
+    def getTheLatestMeta(self):
+        return UserDailyFactorMeta.objects.filter(
+            user_daily_factor_start=self).order_by('-created_at').first()
+
     def getLevel(self):
-        return getattr(self.factor, 'level_%s' % self.selected_level) if self.selected_level else None
+        udfm = self.getTheLatestMeta()
+
+        selected_level = udfm.selected_level if udfm else None
+
+        return getattr(self.factor, 'level_%s' % selected_level) if selected_level else None
     getLevel.short_description = 'Factor Level'
 
+    def getFactorLevels(self):
+        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(6)]
 
-# Level Transition
-class LevelTransition(models.Model):
-    user_daily_factor = models.ForeignKey(
-        UserDailyFactor, on_delete=models.CASCADE)
+    def getDescription(self):
+        udfm = self.getTheLatestMeta()
+
+        return udfm.description if udfm else None
+
+    def isEnded(self):
+        try:
+            UserDailyFactorEnd.objects.get(user_daily_factor_start=self)
+
+            return True
+        except ObjectDoesNotExist:
+            return False
+
+    def getEndedAt(self):
+        try:
+            udfe = UserDailyFactorEnd.objects.get(user_daily_factor_start=self)
+
+            return udfe.created_at
+        except ObjectDoesNotExist:
+            return None
+
+
+# User Daily Factor End
+class UserDailyFactorEnd(models.Model):
+    user_daily_factor_start = models.ForeignKey(
+        UserDailyFactorStart, on_delete=models.CASCADE)
     created_at = models.DateTimeField('Created at', default=timezone.now)
 
     class Meta:
-        verbose_name = 'Level Transitions'
-        verbose_name_plural = 'Level Transitions'
-
-    def getUserFirstName(self):
-        return self.user_daily_factor.getUserFirstName()
-    getUserFirstName.short_description = 'First Name'
-
-    def getUserLastName(self):
-        return self.user_daily_factor.getUserLastName()
-    getUserLastName.short_description = 'Last Name'
-
-    def getUserName(self):
-        return self.user_daily_factor.getUserName()
-    getUserName.short_description = 'Username'
-
-    def getUserEmail(self):
-        return self.user_daily_factor.getUserEmail()
-    getUserEmail.short_description = 'Email'
-
-    def getFactorTitle(self):
-        return self.user_daily_factor.getFactorTitle()
-    getFactorTitle.short_description = 'Factor'
-
-    def getLevel(self):
-        return self.user_daily_factor.getLevel()
-    getLevel.short_description = 'Factor Level'
+        verbose_name = 'User Daily Factor End'
+        verbose_name_plural = 'User Daily Factor Ends'
 
 
-# Skipped Date
-class SkippedDate(models.Model):
-    user_daily_factor = models.ForeignKey(
-        UserDailyFactor, on_delete=models.CASCADE)
+# User Daily Factor Meta
+class UserDailyFactorMeta(models.Model):
+    user_daily_factor_start = models.ForeignKey(
+        UserDailyFactorStart, on_delete=models.CASCADE)
+    description = models.TextField(blank=True)
+    selected_level = models.SmallIntegerField(blank=True, null=True)
+    is_skipped = models.BooleanField(default=False)
     created_at = models.DateTimeField('Created at', default=timezone.now)
 
     class Meta:
-        verbose_name = 'Skipped Date'
-        verbose_name_plural = 'Skipped Dates'
-
-    def getUserFirstName(self):
-        return self.user_daily_factor.getUserFirstName()
-    getUserFirstName.short_description = 'First Name'
-
-    def getUserLastName(self):
-        return self.user_daily_factor.getUserLastName()
-    getUserLastName.short_description = 'Last Name'
-
-    def getUserName(self):
-        return self.user_daily_factor.getUserName()
-    getUserName.short_description = 'Username'
-
-    def getUserEmail(self):
-        return self.user_daily_factor.getUserEmail()
-    getUserEmail.short_description = 'Email'
-
-    def getFactorTitle(self):
-        return self.user_daily_factor.getFactorTitle()
-    getFactorTitle.short_description = 'Factor'
-
-    def getLevel(self):
-        return self.user_daily_factor.getLevel()
+        verbose_name = 'User Daily Factor Meta'
+        verbose_name_plural = 'User Daily Factor Metas'

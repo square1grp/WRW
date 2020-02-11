@@ -35,7 +35,7 @@
                     <div class="col-12 col-lg-3">
                         <div class="form-group row mx-lg-0">
                             <label for="date" class="col-form-label label-1">Date</label>
-                            <input id="date" name="date" class="form-control col" required />
+                            <input id="date" name="date" class="form-control col" required {% if selected_uf %}disabled{% endif %} />
 
                             <script>
                                 var date = new Date();
@@ -59,7 +59,7 @@
                     <div class="col-12 col-lg-3">
                         <div class="form-group row mx-lg-0">
                             <label for="time" class="col-form-label label-1">Time</label>
-                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time.h}}:{{current_time.m}}:{{current_time.s}}" required />
+                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time.h}}:{{current_time.m}}:{{current_time.s}}" required {% if selected_uf %}disabled{% endif %} />
                         </div>
                     </div>
                 </div>
@@ -95,16 +95,18 @@
                                 <td class="align-middle" width="500px">
                                     <div class="row mx-auto">
                                         {% for level in uif.factor.getFactorLevels %}
-                                            <div class="col px-1 text-center">
-                                                <label for="radio_{{uif.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
-                                                <input id="radio_{{uif.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{uif.factor.id}}_level" {% if level == uif.level %} checked {% endif %} value="{{forloop.counter}}"/>
-                                            </div>
+                                            {% if forloop.counter < 6 %}
+                                                <div class="col px-1 text-center">
+                                                    <label for="radio_{{uif.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                                    <input id="radio_{{uif.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{uif.factor.id}}_level" {% if level == uif.level %} checked {% endif %} value="{{forloop.counter}}"/>
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </td>
 
                                 <td class="align-middle" width="200px">
-                                    <input name="factor_{{uif.factor.id}}_description" class="form-control" placeholder="Description" value={{uif.description}}>
+                                    <input name="factor_{{uif.factor.id}}_description" class="form-control" placeholder="Description" value="{{uif.description}}">
                                 </td>
 
                                 <td class="align-middle">
@@ -128,10 +130,12 @@
                                 <td class="align-middle" width="500px">
                                     <div class="row mx-auto">
                                         {% for level in cif.getFactorLevels %}
-                                            <div class="col px-1 text-center">
-                                                <label for="radio_{{cif.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
-                                                <input id="radio_{{cif.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cif.factor.id}}_level" value="{{forloop.counter}}"/>
-                                            </div>
+                                            {% if forloop.counter < 6 %}
+                                                <div class="col px-1 text-center">
+                                                    <label for="radio_{{cif.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                                    <input id="radio_{{cif.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cif.factor.id}}_level" value="{{forloop.counter}}"/>
+                                                </div>
+                                            {% endif %}
                                         {% endfor %}
                                     </div>
                                 </td>
@@ -166,7 +170,7 @@
                                     {% endfor %}
                                 </select>
 
-                                <button class="btn btn-success add {% if not selected_uf %} add-cif {% endif %}" id="add-intermittent-factor" type="button">
+                                <button class="btn btn-success add {% if not selected_uf %}cif{% endif %}" id="add-intermittent-factor" type="button">
                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -185,38 +189,33 @@
                 </thead>
 
                 <tbody>
-                    {% if selected_uf %}
-                        {% for udf in selected_uf.udf_list %}
+                    {% if selected_uf %}                        
+                        {% for udfs in selected_uf.udfs_list %}
                             <tr>
                                 <td class="align-middle" width="200px">
-                                    <h5 class="mb-0">{{udf.factor.title}}</h5>
-                                    <input type="hidden" name="factor_Daily_IDs" value="{{udf.factor.id}}"/>
+                                    <h5 class="mb-0">{{udfs.factor.title}}</h5>
+                                    <input type="hidden" name="udfs_IDs" value="{{udfs.id}}"/>
                                 </td>
 
                                 <td class="align-middle" width="500px">
                                     <div class="row mx-auto">
-                                        {% for level in udf.factor.getFactorLevels %}
+                                        {% for level in udfs.factor.getFactorLevels %}
                                             <div class="col px-1 text-center">
-                                                <label for="radio_{{udf.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
-                                                <input id="radio_{{udf.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{udf.factor.id}}_level" {% if level == udf.level %} checked {% endif %} value="{{forloop.counter}}"/>
+                                                <label for="radio_{{udfs.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                                <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" {% if level == udfs.level %} checked {% endif %} value="{{forloop.counter}}"/>
                                             </div>
                                         {% endfor %}
-
-                                        <div class="col text-center">
-                                            <label for="radio_{{udf.factor.id}}_skipped" class="text-center w-100">Skipped?</label>
-                                            <input id="radio_{{udf.factor.id}}_skipped" type="checkbox" name="factor_{{udf.factor.id}}_skipped" value="yes"/>
-                                        </div>
                                     </div>
                                 </td>
 
                                 <td class="align-middle" width="200px">
-                                    <input name="factor_{{udf.factor.id}}_description" class="form-control" placeholder="Description" value={{udf.description}}>
+                                    <input name="udfs_{{udfs.id}}_description" class="form-control" placeholder="Description" value="{{udfs.description}}">
                                 </td>
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{udf.factor.id}}">Make Intermittent</button>
-                                        <button class="btn btn-danger delete" id="delete-factor-{{udf.factor.id}}" type="button" data-factor-id="{{udf.factor.id}}">
+                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{udfs.factor.id}}" {% if selected_uf %}disabled{% endif %} >Make Intermittent</button>
+                                        <button class="btn btn-danger delete" id="delete-factor-{{udfs.factor.id}}" type="button" data-factor-id="{{udfs.factor.id}}" {% if selected_uf %}disabled{% endif %} >
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -224,37 +223,33 @@
                             </tr>
                         {% endfor %}
                     {% else %}
-                        {% for cdf in cdf_list %}
+                        {% for udfs in udfs_list %}
                             <tr>
                                 <td class="align-middle" width="200px">
-                                    <h5 class="mb-0">{{cdf.getFactorTitle}}</h5>
-                                    <input type="hidden" name="factor_Daily_IDs" value="{{cdf.factor.id}}"/>
+                                    <h5 class="mb-0">{{udfs.getFactorTitle}}</h5>
+                                    <input type="hidden" name="udfs_IDs" value="{{udfs.id}}"/>
                                 </td>
 
                                 <td class="align-middle" width="500px">
                                     <div class="row mx-auto">
-                                        {% for level in cdf.getFactorLevels %}
+                                        {% for level in udfs.getFactorLevels %}
                                             <div class="col px-1 text-center">
-                                                <label for="radio_{{cdf.factor.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
-                                                <input id="radio_{{cdf.factor.id}}_{{forloop.counter}}" type="radio" name="factor_{{cdf.factor.id}}_level" value="{{forloop.counter}}"/>
+                                                <label for="radio_{{udfs.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
+                                                <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" value="{{forloop.counter}}"/>
                                             </div>
                                         {% endfor %}
-
-                                        <div class="col text-center">
-                                            <label for="radio_{{cdf.factor.id}}_skipped" class="text-center w-100">Skipped?</label>
-                                            <input id="radio_{{cdf.factor.id}}_skipped" type="checkbox" name="factor_{{cdf.factor.id}}_skipped" value="yes"/>
-                                        </div>
                                     </div>
                                 </td>
 
                                 <td class="align-middle" width="200px">
-                                    <input name="factor_{{cdf.factor.id}}_description" class="form-control" placeholder="Description">
+                                    <input name="udfs_{{udfs.id}}_description" class="form-control" placeholder="Description">
                                 </td>
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{cdf.factor.id}}">Make Intermittent</button>
-                                        <button class="btn btn-danger delete" id="delete-factor-{{cdf.factor.id}}" type="button" data-factor-id="{{cdf.factor.id}}">
+                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{udfs.factor.id}}">Make Intermittent</button>
+
+                                        <button class="btn btn-danger delete end-daily-factor {% if not selected_uf %}udfe{% endif %}" type="button" data-udfs-id="{{udfs.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -277,7 +272,7 @@
                                     {% endfor %}
                                 </select>
 
-                                <button class="btn btn-success add" id="add-daily-factor" type="button">
+                                <button class="btn btn-success add {% if not selected_uf %}udfs{% endif %}" id="add-daily-factor" type="button">
                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                 </button>
                             </div>

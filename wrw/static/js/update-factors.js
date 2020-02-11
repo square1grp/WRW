@@ -10,20 +10,11 @@ var getTrHTML = function (factorID, factorTitle, factorLevels, is_daily_factor) 
                 <div class="row mx-auto">
     `;
 
-    for (i = 0; i < factorLevels.length; i++) {
+    for (i = 0; i < factorLevels.length - (is_daily_factor ? 0 : 1); i++) {
         template += `
             <div class="col text-center">
                 <label for="radio_FactorID_`+ (i + 1) + `" class="text-center w-100">` + factorLevels[i] + `</label>
                 <input id="radio_FactorID_`+ (i + 1) + `" type="radio" name="factor_FactorID_level" value="` + (i + 1) + `"/>
-            </div>
-        `;
-    }
-
-    if (is_daily_factor) {
-        template += `
-            <div class="col text-center">
-                <label for="radio_{{cdf.factor.id}}_skipped" class="text-center w-100">Skipped?</label>
-                <input id="radio_{{cdf.factor.id}}_skipped" type="checkbox" name="factor_{{cdf.factor.id}}_skipped" value="yes"/>
             </div>
         `;
     }
@@ -123,7 +114,7 @@ $(document).ready(function () {
         convertToIntermittentFactor(factor_id);
     });
 
-    $("form.uf-form button.delete").click(function () {
+    $("form.uf-form button.delete:not(.end-daily-factor)").click(function () {
         var factor_id = $(this).data("factor-id");
         $(this).parents("tr").remove()
         $.each(org_factors, function (idx, factor) {
@@ -137,7 +128,8 @@ $(document).ready(function () {
         var factor_id = $("select#a-intermittent-factors").val();
 
         if (factor_id) {
-            if ($(this).hasClass("add-cif")) {
+            if ($(this).hasClass("cif")) {
+
                 if (factor_id > 0) {
                     window.location.href = "/user/" + user_id + "/update_factors/?action=add_cif&factor_id=" + factor_id;
                 }
@@ -149,7 +141,32 @@ $(document).ready(function () {
 
     $("form.uf-form button#add-daily-factor").click(function () {
         var factor_id = $("select#a-daily-factors").val();
-        addFactor(factor_id, true);
+
+        if (factor_id) {
+            if ($(this).hasClass("udfs")) {
+                var date = $("#date").val();
+                var time = $("#time").val();
+
+                if (factor_id > 0) {
+                    window.location.href = "/user/" + user_id + "/update_factors/?action=add_udfs&factor_id=" + factor_id + "&date=" + date + "&time=" + time;
+                }
+            } else {
+                addFactor(factor_id, true)
+            }
+        }
+    });
+
+    $("form.uf-form button.end-daily-factor").click(function () {
+        var udfs_id = $(this).data("udfs-id");
+
+        if (udfs_id && $(this).hasClass("udfe")) {
+            var date = $("#date").val();
+            var time = $("#time").val();
+
+            if (udfs_id > 0) {
+                window.location.href = "/user/" + user_id + "/update_factors/?action=add_udfe&udfs_id=" + udfs_id + "&date=" + date + "&time=" + time;
+            }
+        }
     });
 
     $("#date_filter").change(function () {

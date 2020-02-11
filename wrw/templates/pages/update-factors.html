@@ -25,7 +25,7 @@
 
         <form class="uf-form w-100 needs-validation my-3" novalidate method="POST">
             <input type="hidden" name="action" value="add"/>
-            
+
             {% if selected_uf %}
                 <input type="hidden" name="selected_uf_id" value="{{selected_uf.id}}"/>
             {% endif %}
@@ -44,12 +44,12 @@
                                     date = "{{ selected_uf.date }}";
                                 {% endif %}
 
-                                $("#date").datepicker({ 
-                                    autoclose: true, 
-                                    maxDate: new Date(), 
+                                $("#date").datepicker({
+                                    autoclose: true,
+                                    maxDate: new Date(),
                                     defaultDate: new Date(),
                                     changeMonth: true,
-                                    changeYear: true 
+                                    changeYear: true
                                 });
                                 $("#date").datepicker("setDate", date);
                             </script>
@@ -189,7 +189,7 @@
                 </thead>
 
                 <tbody>
-                    {% if selected_uf %}                        
+                    {% if selected_uf %}
                         {% for udfs in selected_uf.udfs_list %}
                             <tr>
                                 <td class="align-middle" width="200px">
@@ -263,18 +263,20 @@
                     <tr>
                         <td class="align-middle" colspan="4">
                             <div class="row mx-auto">
-                                <select id="a-daily-factors" class="form-control factors col-lg-3 mr-2">
-                                    <option value="-1">Please select factor</option>
-                                    {% for factor in factors %}
-                                        {% if not factor.disabled %}
-                                            <option value="{{factor.id}}">{{factor.title}}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-
-                                <button class="btn btn-success add {% if not selected_uf %}udfs{% endif %}" id="add-daily-factor" type="button">
-                                    <i class="fa fa-plus" aria-hidden="true"></i>
-                                </button>
+                              {% if not selected_uf %}
+                                  <select id="a-daily-factors" class="form-control factors col-lg-3 mr-2">
+                                      <option value="-1">Please select factor</option>
+                                      {% for factor in factors %}
+                                          {% if not factor.disabled %}
+                                              <option value="{{factor.id}}">{{factor.title}}</option>
+                                          {% endif %}
+                                      {% endfor %}
+                                  </select>
+                                
+                                  <button class="btn btn-success add {% if not selected_uf %}udfs{% endif %}" id="add-daily-factor" type="button">
+                                      <i class="fa fa-plus" aria-hidden="true"></i>
+                                  </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -323,12 +325,12 @@
                             <script>
                                 var date = "{{date_filter}}";
 
-                                $("#date_filter").datepicker({ 
-                                    autoclose: true, 
-                                    maxDate: new Date(), 
+                                $("#date_filter").datepicker({
+                                    autoclose: true,
+                                    maxDate: new Date(),
                                     defaultDate: new Date(),
                                     changeMonth: true,
-                                    changeYear: true 
+                                    changeYear: true
                                 });
                                 $("#date_filter").datepicker("setDate", date);
                             </script>
@@ -360,7 +362,7 @@
                                 <form class="my-auto" method="POST">
                                     <input type="hidden" name="action" value="delete"/>
                                     <input type="hidden" name="uf_id" value="{{uf.id}}"/>
-                                    
+
                                     <button class="btn btn-danger delete" type="submit">
                                         <i class="fa fa-times" aria-hidden="true"></i>
                                     </button>

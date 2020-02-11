@@ -257,15 +257,15 @@ class UserFactors(models.Model):
         return UserIntermittentFactor.objects.filter(user_factors=self)
 
     def getUDFSList(self):
-        udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(
-            user=self.user, created_at__lt=self.created_at) if not udfs.isEnded()]
+        udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(user=self.user, created_at__lt=self.created_at) if not udfs.isEnded()]
+        # get udfs with created_at < UF created_at if the udfs is active
+        udfs_last = UserDailyFactorStart.objects.filter(user=self.user, created_at__lt=self.created_at).order_by('-created_at').first()
+        # get oldest udfs from udfs_list
 
-        udfs_last = UserDailyFactorStart.objects.filter(
-            user=self.user, created_at__lt=self.created_at).order_by('-created_at').last()
-
-        if udfs_last and udfs_last not in udfs_list:
-            if udfs_last.getEndedAt() and udfs_last.getEndedAt() > self.created_at:
-                udfs_list.append(udfs_last)
+        # avoid case where oldest udf has been ended
+        if udfs_last and udfs_last not in udfs_list:                                    # if the most recent udfs has been ended
+            if udfs_last.getEndedAt() and udfs_last.getEndedAt() > self.created_at:     # if the end date is after the UF created_at
+                udfs_list.append(udfs_last)                                             # append the udfs to the list which has all the active udfs's.
 
         return udfs_list
 

@@ -161,6 +161,7 @@
                     <tr>
                         <td class="align-middle" colspan="4">
                             <div class="row mx-auto">
+                              {% if not selected_uf %}
                                 <select id="a-intermittent-factors" class="form-control factors col-lg-3 mr-2">
                                     <option value="-1">Please select factor</option>
                                     {% for factor in factors %}
@@ -173,6 +174,7 @@
                                 <button class="btn btn-success add {% if not selected_uf %}cif{% endif %}" id="add-intermittent-factor" type="button">
                                     <i class="fa fa-plus" aria-hidden="true"></i>
                                 </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -272,7 +274,7 @@
                                           {% endif %}
                                       {% endfor %}
                                   </select>
-                                
+
                                   <button class="btn btn-success add {% if not selected_uf %}udfs{% endif %}" id="add-daily-factor" type="button">
                                       <i class="fa fa-plus" aria-hidden="true"></i>
                                   </button>

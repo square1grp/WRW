@@ -236,18 +236,20 @@ class UpdateFactorsPage(View):
             factor_levels=_udfs.getFactorLevels(),
             disabled=False
         ) for _udfs in _udfs_list]
-        udfs_last = UserDailyFactorStart.objects.filter(
-            user=user, created_at__lt=created_at).order_by('-created_at').first()
 
-        if udfs_last and udfs_last not in _udfs_list:
-            if udfs_last.getEndedAt() and udfs_last.getEndedAt() > created_at:
-                udfs_list.append(dict(
-                    id=udfs_last.id,
-                    factor_id=udfs_last.factor.id,
-                    factor_title=udfs_last.getFactorTitle(),
-                    factor_levels=udfs_last.getFactorLevels(),
-                    disabled=True
-                ))
+        for factor in Factor.objects.all():
+            udfs_last = UserDailyFactorStart.objects.filter(
+                user=user, factor=factor, created_at__lt=created_at).order_by('-created_at').first()
+
+            if udfs_last and udfs_last not in _udfs_list:
+                if udfs_last.getEndedAt() and udfs_last.getEndedAt() > created_at:
+                    udfs_list.append(dict(
+                        id=udfs_last.id,
+                        factor_id=udfs_last.factor.id,
+                        factor_title=udfs_last.getFactorTitle(),
+                        factor_levels=udfs_last.getFactorLevels(),
+                        disabled=True
+                    ))
 
         selected_uf = None
         factors = []

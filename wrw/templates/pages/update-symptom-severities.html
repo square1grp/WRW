@@ -38,11 +38,7 @@
                             <input id="date" name="date" class="form-control col" required />
 
                             <script>
-                                var date = new Date();
-
-                                {% if selected_uss %}
-                                    date = "{{ selected_uss.date }}";
-                                {% endif %}
+                                var date = "{{current_date}}";
 
                                 $("#date").datepicker({ 
                                     autoclose: true, 
@@ -59,7 +55,7 @@
                     <div class="col-12 col-lg-3">
                         <div class="form-group row mx-lg-0">
                             <label for="time" class="col-form-label label-1">Time</label>
-                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time.h}}:{{current_time.m}}:{{current_time.s}}" required />
+                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time}}" required />
                         </div>
                     </div>
                 </div>

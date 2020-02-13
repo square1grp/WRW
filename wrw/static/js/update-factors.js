@@ -68,4 +68,11 @@ $(document).ready(function () {
             }, 500);
         }
     });
+
+    $("#date, #time").change(function () {
+        var date = $("#date").val();
+        var time = $("#time").val();
+
+        window.location.href = "/user/" + user_id + "/update_factors/?date=" + date + "&time=" + time;
+    });
 });

@@ -38,11 +38,7 @@
                             <input id="date" name="date" class="form-control col" required {% if selected_uf %}disabled{% endif %} />
 
                             <script>
-                                var date = new Date();
-
-                                {% if selected_uf %}
-                                    date = "{{ selected_uf.date }}";
-                                {% endif %}
+                                var date = "{{current_date}}";
 
                                 $("#date").datepicker({
                                     autoclose: true,
@@ -59,7 +55,7 @@
                     <div class="col-12 col-lg-3">
                         <div class="form-group row mx-lg-0">
                             <label for="time" class="col-form-label label-1">Time</label>
-                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time.h}}:{{current_time.m}}:{{current_time.s}}" required {% if selected_uf %}disabled{% endif %} />
+                            <input id="time" name="time" type="time" class="form-control col" value="{{current_time}}" required {% if selected_uf %}disabled{% endif %} />
                         </div>
                     </div>
                 </div>
@@ -228,13 +224,13 @@
                         {% for udfs in udfs_list %}
                             <tr>
                                 <td class="align-middle" width="200px">
-                                    <h5 class="mb-0">{{udfs.getFactorTitle}}</h5>
+                                    <h5 class="mb-0">{{udfs.factor_title}}</h5>
                                     <input type="hidden" name="udfs_IDs" value="{{udfs.id}}"/>
                                 </td>
 
                                 <td class="align-middle" width="500px">
                                     <div class="row mx-auto">
-                                        {% for level in udfs.getFactorLevels %}
+                                        {% for level in udfs.factor_levels %}
                                             <div class="col px-1 text-center">
                                                 <label for="radio_{{udfs.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
                                                 <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" value="{{forloop.counter}}"/>
@@ -249,9 +245,9 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{udfs.factor.id}}">Make Intermittent</button>
+                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{udfs.factor_id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
 
-                                        <button class="btn btn-danger delete end-daily-factor {% if not selected_uf %}udfe{% endif %}" type="button" data-udfs-id="{{udfs.id}}">
+                                        <button class="btn btn-danger delete end-daily-factor {% if not selected_uf %}udfe{% endif %}" type="button" data-udfs-id="{{udfs.id}}" {% if udfs.disabled %}disabled{% endif %}>
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>

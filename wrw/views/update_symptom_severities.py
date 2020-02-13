@@ -114,9 +114,10 @@ class UpdateSymptomSeveritiesPage(View):
 
         cus_list = CurrentUserSymptom.objects.filter(user=user)
 
-        current_time = dict(h='%02d' % datetime.now().hour,
-                            m='%02d' % datetime.now().minute,
-                            s='%02d' % datetime.now().second)
+        current_date = datetime.now().strftime('%m/%d/%Y')
+        current_time = '{}:{}:{}'.format('%02d' % datetime.now().hour,
+                                         '%02d' % datetime.now().minute,
+                                         '%02d' % datetime.now().second)
 
         selected_uss = None
         symptoms = []
@@ -124,11 +125,11 @@ class UpdateSymptomSeveritiesPage(View):
             selected_uss = UserSymptomSeverities.objects.get(
                 id=kwargs['uss_id'])
 
-            current_time = dict(
-                h='%02d' % selected_uss.created_at.hour,
-                m='%02d' % selected_uss.created_at.minute,
-                s='%02d' % selected_uss.created_at.second,
-            )
+            current_date = selected_uss.created_at.strftime('%m/%d/%Y')
+            current_time = '{}:{}:{}'.format(
+                '%02d' % selected_uss.created_at.hour,
+                '%02d' % selected_uss.created_at.minute,
+                '%02d' % selected_uss.created_at.second)
 
             for symptom in Symptom.objects.all():
                 _symptom = dict(
@@ -205,5 +206,6 @@ class UpdateSymptomSeveritiesPage(View):
             symptoms=symptoms,
             date_filter=date_filter,
             org_symptoms=org_symptoms,
+            current_date=current_date,
             current_time=current_time
         ))

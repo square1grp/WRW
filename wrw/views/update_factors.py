@@ -177,7 +177,7 @@ class UpdateFactorsPage(View):
                     udfs.save()
                 except:
                     pass
-            elif params['action'] == 'add_udfe':
+            elif params['action'] in ['add_udfe', 'convert-to-intermittent']:
                 udfs_id = params['udfs_id']
 
                 started_at = '%s %s' % (params['date'], params['time'])
@@ -190,6 +190,11 @@ class UpdateFactorsPage(View):
                         user_daily_factor_start=udfs, created_at=started_at)
 
                     udfe.save()
+
+                    if params['action'] == 'convert-to-intermittent':
+                        cif = CurrentIntermittentFactor(
+                            user=user, factor=udfs.getFactor())
+                        cif.save()
                 except:
                     pass
 

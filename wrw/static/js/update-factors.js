@@ -22,7 +22,7 @@ $(document).ready(function () {
     $("form.uf-form button#add-intermittent-factor").click(function () {
         var factor_id = $("select#a-intermittent-factors").val();
 
-        if (factor_id > 0 && $(this).hasClass("cif")) {
+        if (factor_id > 0) {
             window.location.href = "/user/" + user_id + "/update_factors/?action=add_cif&factor_id=" + factor_id;
         }
     });
@@ -30,7 +30,7 @@ $(document).ready(function () {
     $("form.uf-form button#add-daily-factor").click(function () {
         var factor_id = $("select#a-daily-factors").val();
 
-        if (factor_id > 0 && $(this).hasClass("udfs")) {
+        if (factor_id > 0) {
             var date = $("#date").val();
             var time = $("#time").val();
 
@@ -38,10 +38,10 @@ $(document).ready(function () {
         }
     });
 
-    $("form.uf-form button.end-daily-factor").click(function () {
+    $("form.uf-form button.end-daily-factor:not(:disabled)").click(function () {
         var udfs_id = $(this).data("udfs-id");
 
-        if (udfs_id > 0 && $(this).hasClass("udfe")) {
+        if (udfs_id > 0) {
             var date = $("#date").val();
             var time = $("#time").val();
 
@@ -69,10 +69,23 @@ $(document).ready(function () {
         }
     });
 
-    $("#date, #time").change(function () {
+    $("#date").change(function () {
         var date = $("#date").val();
         var time = $("#time").val();
 
-        window.location.href = "/user/" + user_id + "/update_factors/?date=" + date + "&time=" + time;
+        if (date && time) {
+            window.location.href = "/user/" + user_id + "/update_factors/?date=" + date + "&time=" + time;
+        }
+    });
+
+    $(".convert-to-intermittent:not(:disabled)").click(function () {
+        var udfs_id = $(this).data("udfs-id");
+
+        if (udfs_id > 0) {
+            var date = $("#date").val();
+            var time = $("#time").val();
+
+            window.location.href = "/user/" + user_id + "/update_factors/?action=convert-to-intermittent&udfs_id=" + udfs_id + "&date=" + date + "&time=" + time;
+        }
     });
 });

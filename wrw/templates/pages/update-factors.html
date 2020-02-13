@@ -157,19 +157,19 @@
                     <tr>
                         <td class="align-middle" colspan="4">
                             <div class="row mx-auto">
-                              {% if not selected_uf %}
-                                <select id="a-intermittent-factors" class="form-control factors col-lg-3 mr-2">
-                                    <option value="-1">Please select factor</option>
-                                    {% for factor in factors %}
-                                        {% if not factor.disabled %}
-                                            <option value="{{factor.id}}">{{factor.title}}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
+                                {% if not selected_uf %}
+                                    <select id="a-intermittent-factors" class="form-control factors col-lg-3 mr-2">
+                                        <option value="-1">Please select factor</option>
+                                        {% for factor in factors %}
+                                            {% if not factor.disabled %}
+                                                <option value="{{factor.id}}">{{factor.title}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
 
-                                <button class="btn btn-success add {% if not selected_uf %}cif{% endif %}" id="add-intermittent-factor" type="button">
-                                    <i class="fa fa-plus" aria-hidden="true"></i>
-                                </button>
+                                    <button class="btn btn-success add" id="add-intermittent-factor" type="button">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
                                 {% endif %}
                             </div>
                         </td>
@@ -245,9 +245,9 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-factor-id="{{udfs.factor_id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
+                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="{{udfs.id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
 
-                                        <button class="btn btn-danger delete end-daily-factor {% if not selected_uf %}udfe{% endif %}" type="button" data-udfs-id="{{udfs.id}}" {% if udfs.disabled %}disabled{% endif %}>
+                                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="{{udfs.id}}" {% if udfs.disabled %}disabled{% endif %}>
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -261,19 +261,19 @@
                     <tr>
                         <td class="align-middle" colspan="4">
                             <div class="row mx-auto">
-                              {% if not selected_uf %}
-                                  <select id="a-daily-factors" class="form-control factors col-lg-3 mr-2">
-                                      <option value="-1">Please select factor</option>
-                                      {% for factor in factors %}
-                                          {% if not factor.disabled %}
-                                              <option value="{{factor.id}}">{{factor.title}}</option>
-                                          {% endif %}
-                                      {% endfor %}
-                                  </select>
+                                {% if not selected_uf %}
+                                    <select id="a-daily-factors" class="form-control factors col-lg-3 mr-2">
+                                        <option value="-1">Please select factor</option>
+                                        {% for factor in factors %}
+                                            {% if not factor.disabled %}
+                                                <option value="{{factor.id}}">{{factor.title}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
 
-                                  <button class="btn btn-success add {% if not selected_uf %}udfs{% endif %}" id="add-daily-factor" type="button">
-                                      <i class="fa fa-plus" aria-hidden="true"></i>
-                                  </button>
+                                    <button class="btn btn-success add" id="add-daily-factor" type="button">
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button>
                                 {% endif %}
                             </div>
                         </td>

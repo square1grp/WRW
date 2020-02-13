@@ -141,25 +141,27 @@
 
                 <tfoot>
                     <tr>
-                        <td class="align-middle" width="250px">
-                            <select class="form-control symptoms">
-                                <option value="-1">Please select symptom</option>
-                                {% for symptom in symptoms %}
-                                    {% if not symptom.disabled %}
-                                        <option value="{{symptom.id}}">{{symptom.name}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </td>
+                        {% if not selected_uss %}
+                            <td class="align-middle" width="250px">
+                                <select class="form-control symptoms">
+                                    <option value="-1">Please select symptom</option>
+                                    {% for symptom in symptoms %}
+                                        {% if not symptom.disabled %}
+                                            <option value="{{symptom.id}}">{{symptom.name}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </td>
 
-                        <td class="align-middle" width="550px">
-                            <button class="btn btn-success add float-left {% if not selected_uss %}cus{% endif %}" id="add-symptom" type="button">
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                        </td>
+                            <td class="align-middle" width="550px">
+                                <button class="btn btn-success add float-left" id="add-symptom" type="button">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </button>
+                            </td>
 
-                        <td width="250px"/>
-                        <td/>
+                            <td width="250px"/>
+                            <td/>
+                        {% endif %}
                     </tr>
 
                     <tr>

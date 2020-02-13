@@ -144,13 +144,25 @@ class UpdateFactorsPage(View):
 
         params = request.GET
         if 'action' in params:
-            if params['action'] == 'delete_cif':
+            if params['action'] in ['delete_cif', 'convert-to-daily']:
                 factor_id = params['factor_id']
 
                 try:
                     cif = CurrentIntermittentFactor.objects.get(
                         user=user, factor__id=factor_id)
                     cif.delete()
+
+                    if params['action'] == 'convert-to-daily':
+                        factor_id = params['factor_id']
+
+                        started_at = '%s %s' % (params['date'], params['time'])
+                        started_at = datetime.strptime(
+                            started_at, '%m/%d/%Y %H:%M:%S')
+
+                        udfs = UserDailyFactorStart(
+                            user=user, factor=Factor.objects.get(id=factor_id), created_at=started_at)
+
+                        udfs.save()
                 except:
                     pass
 

@@ -88,4 +88,15 @@ $(document).ready(function () {
             window.location.href = "/user/" + user_id + "/update_factors/?action=convert-to-intermittent&udfs_id=" + udfs_id + "&date=" + date + "&time=" + time;
         }
     });
+
+    $(".convert-to-daily:not(:disabled)").click(function () {
+        var factor_id = $(this).data("factor-id");
+
+        if (factor_id > 0) {
+            var date = $("#date").val();
+            var time = $("#time").val();
+
+            window.location.href = "/user/" + user_id + "/update_factors/?action=convert-to-daily&factor_id=" + factor_id + "&date=" + date + "&time=" + time;
+        }
+    });
 });

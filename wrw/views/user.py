@@ -15,31 +15,40 @@ class UserPage(View):
     def getSymptomsScatterChart(self, user):
         fig = go.Figure()
 
-        usss_list = UserSingleSymptomSeverity.objects.filter(
-            symptom__in=Symptom.objects.all(), user_symptom_severities__user=user).exclude(selected_level__isnull=True).order_by('user_symptom_severities__created_at')
+        symptom_updates_list = []
 
-        symptom_updates = [dict(
-            title=usss.getTitle(),
-            description=usss.getDescription(),
-            severity=usss.getLevelNum()-1,
-            created_at=usss.getCreatedAt()
-        ) for usss in usss_list]
+        for symptom in Symptom.objects.all():
+            usss_list = UserSingleSymptomSeverity.objects.filter(
+                symptom=symptom, user_symptom_severities__user=user).exclude(selected_level__isnull=True).order_by('user_symptom_severities__created_at')
 
-        sizes = [10] * len(symptom_updates)
+            symptom_updates_list.append(
+                dict(name=str(symptom), data=[dict(
+                    title=usss.getTitle(),
+                    description=usss.getDescription(),
+                    severity=usss.getLevelNum()-1,
+                    created_at=usss.getCreatedAt()
+                ) for usss in usss_list]))
 
-        line_colors = ['rgba(255, 0, 0, 0)'] * len(symptom_updates)
-        fig.add_trace(go.Scatter(x=[symptom_update['created_at'] for symptom_update in symptom_updates],
-                                 y=[symptom_update['severity']
-                                    for symptom_update in symptom_updates],
-                                 hoverinfo='text',
-                                 hovertext=[symptom_update['title']
-                                            for symptom_update in symptom_updates],
-                                 mode='lines+markers',
-                                 marker=dict(size=sizes, opacity=1, color='rgb(255, 0, 0)', line=dict(
-                                     width=12, color=line_colors)),
-                                 line_color='rgb(255, 0, 0)',
-                                 customdata=symptom_updates,
-                                 name='Symptom Severities'))
+        colors = colorlover.scales['10']['qual']['Paired']
+        colors = ['255, 0, 0'] + [text[4:-2] for text in colors]
+        for index, symptom_updates in enumerate(symptom_updates_list):
+            item_list = symptom_updates['data']
+
+            sizes = [10] * len(item_list)
+
+            line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
+            fig.add_trace(go.Scatter(x=[item['created_at'] for item in item_list],
+                                     y=[item['severity']
+                                        for item in item_list],
+                                     hoverinfo='text',
+                                     hovertext=[item['title']
+                                                for item in item_list],
+                                     mode='lines+markers',
+                                     marker=dict(size=sizes, opacity=1, color='rgb(%s)' % colors[index], line=dict(
+                                         width=12, color=line_colors)),
+                                     line_color='rgb(%s)' % colors[index],
+                                     customdata=item_list,
+                                     name=symptom_updates['name']))
 
         fig.add_trace(go.Scatter(x=[datetime.today()],
                                  y=[0],
@@ -83,7 +92,7 @@ class UserPage(View):
                 sizex=0.15, sizey=0.15
             ))
 
-        fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=False,
+        fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=True,
                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)

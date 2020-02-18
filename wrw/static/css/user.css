@@ -68,3 +68,7 @@
   text-decoration: none;
   color: #212529;
 }
+
+.user-page .symptoms-chart .legend .groups g:last-child {
+  display: none;
+}

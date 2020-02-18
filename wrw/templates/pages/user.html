@@ -54,6 +54,18 @@
             </a>
         </div>
     </div>
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <h3 class="text-center">Symptoms</h3>
+        </div>
+
+        <div class="col-12 mx-auto symptoms-chart">
+            {% if symptoms_chart %}
+                {{symptoms_chart|safe}}
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}

@@ -125,6 +125,12 @@ class UserSymptomSeverities(models.Model):
     def getUSSSList(self):
         return UserSingleSymptomSeverity.objects.filter(user_symptom_severities=self)
 
+    def getTitle(self):
+        return self.title
+
+    def getCreatedAt(self):
+        return self.created_at
+
 
 # User Single Symptom Severity
 class UserSingleSymptomSeverity(models.Model):
@@ -167,6 +173,18 @@ class UserSingleSymptomSeverity(models.Model):
     def getLevel(self):
         return getattr(self.symptom, 'level_%s' % self.selected_level) if self.selected_level else None
     getLevel.short_description = 'Symptom Level'
+
+    def getLevelNum(self):
+        return self.selected_level if self.selected_level else None
+
+    def getTitle(self):
+        return self.user_symptom_severities.getTitle()
+
+    def getDescription(self):
+        return self.description
+
+    def getCreatedAt(self):
+        return self.user_symptom_severities.getCreatedAt()
 
 
 # Factor

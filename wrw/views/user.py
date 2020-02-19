@@ -107,12 +107,9 @@ class UserPage(View):
             if not latest_udfm['is_ended']:
                 latest_date = latest_udfm['created_at'].date()
 
-                d_days = (date.today() - latest_date).days
+                d_days = (date.today() - latest_date).days-1
 
-                if datetime.today().hour < 12:
-                    d_days -= 1
-
-                while d_days:
+                while d_days > (0 if datetime.today().hour < 12 else -1):
                     created_at = date.today()-timedelta(days=d_days)
                     created_at = '%s 12:00:00' % created_at.strftime(
                         '%m/%d/%Y')

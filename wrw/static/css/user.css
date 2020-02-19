@@ -69,6 +69,7 @@
   color: #212529;
 }
 
-.user-page .symptoms-chart .legend .groups g:last-child {
+.user-page .symptoms-chart .legend .groups g:last-child,
+.user-page .factors-chart .legend .groups g:last-child {
   display: none;
 }

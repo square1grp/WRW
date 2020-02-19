@@ -104,26 +104,28 @@ class UserPage(View):
         if len(udfm_updates):
             latest_udfm = udfm_updates[-1]
 
-            if not latest_udfm['is_ended']:
-                latest_date = latest_udfm['created_at'].date()
+            latest_date = latest_udfm['created_at'].date()
 
+            if latest_udfm['is_ended']:
+                d_days = (latest_udfm['ended_at'].date() - latest_date).days-1
+            else:
                 d_days = (date.today() - latest_date).days-1
 
-                while d_days > (0 if datetime.today().hour < 12 else -1):
-                    created_at = date.today()-timedelta(days=d_days)
-                    created_at = '%s 12:00:00' % created_at.strftime(
-                        '%m/%d/%Y')
-                    created_at = datetime.strptime(
-                        created_at, '%m/%d/%Y %H:%M:%S')
+            while d_days > (0 if datetime.today().hour < 12 else -1):
+                created_at = date.today()-timedelta(days=d_days)
+                created_at = '%s 12:00:00' % created_at.strftime(
+                    '%m/%d/%Y')
+                created_at = datetime.strptime(
+                    created_at, '%m/%d/%Y %H:%M:%S')
 
-                    udfm_updates.append(dict(
-                        title=latest_udfm['title'],
-                        description=latest_udfm['description'],
-                        severity=latest_udfm['severity'],
-                        created_at=created_at,
-                        is_ended=False))
+                udfm_updates.append(dict(
+                    title=latest_udfm['title'],
+                    description=latest_udfm['description'],
+                    severity=latest_udfm['severity'],
+                    created_at=created_at,
+                    is_ended=False))
 
-                    d_days -= 1
+                d_days -= 1
 
             created_at_list = [udfm['created_at'] for udfm in udfm_updates]
 
@@ -178,7 +180,8 @@ class UserPage(View):
                 description=udfm.getDescription(),
                 severity=udfm.getLevelNum(),
                 created_at=udfm.getCreatedAt(),
-                is_ended=udfm.isEnded()
+                is_ended=udfm.isEnded(),
+                ended_at=udfm.getEndedAt()
             ) for udfm in udfm_list]
 
             udfm_updates = self.checkActiveUDFMUpdates(udfm_updates)

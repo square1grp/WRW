@@ -45,7 +45,7 @@ class UpdateFactorsPage(View):
     def updateUserDailyFactorMeta(self, udfs, selected_level, title, description, created_at, is_selected_uf=False):
         udfm = udfs.getTheLatestMeta()
 
-        if udfm:
+        if udfm and selected_level:
             if is_selected_uf and udfm.created_at == created_at:
                 udfm.selected_level = int(selected_level)
                 udfm.title = title

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views import View
 from wrw.models import User, Symptom, Factor, UserSingleSymptomSeverity, UserIntermittentFactor, UserDailyFactorMeta
 from wrw.utils import isUserLoggedIn
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from plotly.offline import plot
 import plotly.graph_objects as go
 import colorlover
@@ -100,6 +100,61 @@ class UserPage(View):
         return plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
 
+    def checkActiveUDFMUpdates(self, udfm_updates):
+        if len(udfm_updates):
+            latest_udfm = udfm_updates[-1]
+
+            if not latest_udfm['is_ended']:
+                latest_date = latest_udfm['created_at'].date()
+
+                d_days = (date.today() - latest_date).days
+
+                if datetime.today().hour < 12:
+                    d_days -= 1
+
+                while d_days:
+                    created_at = date.today()-timedelta(days=d_days)
+                    created_at = '%s 12:00:00' % created_at.strftime(
+                        '%m/%d/%Y')
+                    created_at = datetime.strptime(
+                        created_at, '%m/%d/%Y %H:%M:%S')
+
+                    udfm_updates.append(dict(
+                        title=latest_udfm['title'],
+                        description=latest_udfm['description'],
+                        severity=latest_udfm['severity'],
+                        created_at=created_at,
+                        is_ended=False))
+
+                    d_days -= 1
+
+            created_at_list = [udfm['created_at'] for udfm in udfm_updates]
+
+            for idx in range(len(created_at_list)-1):
+                d_days = (created_at_list[idx+1].date() -
+                          created_at_list[idx].date()).days-1
+
+                udfm = udfm_updates[idx]
+
+                while d_days:
+                    created_at = created_at_list[idx +
+                                                 1].date()-timedelta(days=d_days)
+                    created_at = '%s 12:00:00' % created_at.strftime(
+                        '%m/%d/%Y')
+                    created_at = datetime.strptime(
+                        created_at, '%m/%d/%Y %H:%M:%S')
+
+                    udfm_updates.append(dict(
+                        title=udfm['title'],
+                        description=udfm['description'],
+                        severity=udfm['severity'],
+                        created_at=created_at,
+                        is_ended=False))
+
+                    d_days -= 1
+
+        return sorted(udfm_updates, key=lambda k: k['created_at'])
+
     def getFactorsScatterChart(self, user):
         fig = go.Figure()
 
@@ -121,13 +176,18 @@ class UserPage(View):
             udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start__user=user, user_daily_factor_start__factor=factor).exclude(
                 selected_level__isnull=True).order_by('created_at')
 
+            udfm_updates = [dict(
+                title=udfm.getTitle(),
+                description=udfm.getDescription(),
+                severity=udfm.getLevelNum(),
+                created_at=udfm.getCreatedAt(),
+                is_ended=udfm.isEnded()
+            ) for udfm in udfm_list]
+
+            udfm_updates = self.checkActiveUDFMUpdates(udfm_updates)
+
             factor_updates_list.append(
-                dict(name=str(factor), data=[dict(
-                    title=udfm.getTitle(),
-                    description=udfm.getDescription(),
-                    severity=udfm.getLevelNum(),
-                    created_at=udfm.getCreatedAt()
-                ) for udfm in udfm_list]))
+                dict(name=str(factor), data=udfm_updates))
 
         colors = colorlover.scales['10']['qual']['Paired']
         colors = ['255, 0, 0'] + [text[4:-2] for text in colors]

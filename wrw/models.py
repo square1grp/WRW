@@ -444,3 +444,6 @@ class UserDailyFactorMeta(models.Model):
 
     def getCreatedAt(self):
         return self.created_at
+
+    def isEnded(self):
+        return self.user_daily_factor_start.isEnded()

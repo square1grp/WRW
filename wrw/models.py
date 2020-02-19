@@ -355,7 +355,6 @@ class UserIntermittentFactor(models.Model):
 
 # User Daily Factor Start
 class UserDailyFactorStart(models.Model):
-    title = models.CharField(max_length=100, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
     created_at = models.DateTimeField('Created at', default=timezone.now)
@@ -363,9 +362,6 @@ class UserDailyFactorStart(models.Model):
     class Meta:
         verbose_name = 'User Daily Factor Start'
         verbose_name_plural = 'User Daily Factor Starts'
-
-    def getTitle(self):
-        return self.title
 
     def getFactor(self):
         return self.factor
@@ -427,6 +423,7 @@ class UserDailyFactorEnd(models.Model):
 class UserDailyFactorMeta(models.Model):
     user_daily_factor_start = models.ForeignKey(
         UserDailyFactorStart, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True)
     selected_level = models.SmallIntegerField(blank=True, null=True)
     is_skipped = models.BooleanField(default=False)
@@ -437,7 +434,7 @@ class UserDailyFactorMeta(models.Model):
         verbose_name_plural = 'User Daily Factor Metas'
 
     def getTitle(self):
-        return self.user_daily_factor_start.getTitle()
+        return self.title
 
     def getDescription(self):
         return self.description if self.description else ''

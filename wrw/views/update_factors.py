@@ -42,12 +42,13 @@ class UpdateFactorsPage(View):
 
         uif.save()
 
-    def updateUserDailyFactorMeta(self, udfs, selected_level, description, created_at, is_selected_uf=False):
+    def updateUserDailyFactorMeta(self, udfs, selected_level, title, description, created_at, is_selected_uf=False):
         udfm = udfs.getTheLatestMeta()
 
         if udfm:
             if is_selected_uf and udfm.created_at == created_at:
                 udfm.selected_level = int(selected_level)
+                udfm.title = title
                 udfm.description = description
 
                 udfm.save()
@@ -56,7 +57,7 @@ class UpdateFactorsPage(View):
                 return
 
         udfm = UserDailyFactorMeta(
-            user_daily_factor_start=udfs, selected_level=selected_level, description=description, created_at=created_at)
+            user_daily_factor_start=udfs, selected_level=selected_level, title=title, description=description, created_at=created_at)
 
         udfm.save()
 
@@ -107,8 +108,8 @@ class UpdateFactorsPage(View):
 
             for udfs_id in params.getlist('udfs_IDs'):
                 udfs = UserDailyFactorStart.objects.get(id=udfs_id)
-                udfs.title = params['title']
-                udfs.save()
+
+                title = params['title']
 
                 description_key = 'udfs_%s_description' % udfs_id
                 description = params[description_key] if description_key in params else ''
@@ -118,7 +119,7 @@ class UpdateFactorsPage(View):
 
                 # create user daily factor meta
                 self.updateUserDailyFactorMeta(
-                    udfs, selected_level, description, uf.created_at, 'selected_uf_id' in params)
+                    udfs, selected_level, title, description, uf.created_at, 'selected_uf_id' in params)
 
         elif params['action'] == 'delete':
             uf = UserFactors.objects.get(id=params['uf_id'])

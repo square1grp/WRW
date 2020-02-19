@@ -107,7 +107,7 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-daily" data-factor-id="{{uif.factor.id}}">Make Daily</button>
+                                        <button class="btn btn-primary mr-2 convert-to-daily" data-factor-id="{{uif.factor.id}}" {% if selected_uf %}disabled{% endif %}>Make Daily</button>
                                         <button class="btn btn-danger delete" id="delete-factor-{{uif.factor.id}}" type="button" data-factor-id="{{uif.factor.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
@@ -200,7 +200,7 @@
                                         {% for level in udfs.factor.getFactorLevels %}
                                             <div class="col px-1 text-center">
                                                 <label for="radio_{{udfs.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
-                                                <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" {% if level == udfs.level %} checked {% endif %} value="{{forloop.counter}}"/>
+                                                <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" {% if level == udfs.level %} checked {% endif %} value="{% if forloop.counter > 5 %}0{% else %}{{forloop.counter}}{% endif %}"/>
                                             </div>
                                         {% endfor %}
                                     </div>
@@ -233,7 +233,7 @@
                                         {% for level in udfs.factor_levels %}
                                             <div class="col px-1 text-center">
                                                 <label for="radio_{{udfs.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
-                                                <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" value="{{forloop.counter}}"/>
+                                                <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" value="{% if forloop.counter > 5 %}0{% else %}{{forloop.counter}}{% endif %}"/>
                                             </div>
                                         {% endfor %}
                                     </div>

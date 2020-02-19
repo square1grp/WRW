@@ -46,7 +46,7 @@ class UpdateFactorsPage(View):
         udfm = udfs.getTheLatestMeta()
 
         if udfm:
-            if is_selected_uf:
+            if is_selected_uf and udfm.created_at == created_at:
                 udfm.selected_level = int(selected_level)
                 udfm.description = description
 
@@ -107,6 +107,8 @@ class UpdateFactorsPage(View):
 
             for udfs_id in params.getlist('udfs_IDs'):
                 udfs = UserDailyFactorStart.objects.get(id=udfs_id)
+                udfs.title = params['title']
+                udfs.save()
 
                 description_key = 'udfs_%s_description' % udfs_id
                 description = params[description_key] if description_key in params else ''
@@ -288,7 +290,7 @@ class UpdateFactorsPage(View):
                 udfs_list=[dict(
                     id=udfs.id,
                     factor=udfs.getFactor(),
-                    level=udfs.getLevel(),
+                    level=udfs.getLevel(selected_uf.created_at),
                     description=udfs.getDescription()
                 ) for udfs in selected_uf.getUDFSList()]
             )

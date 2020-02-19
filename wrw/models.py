@@ -191,12 +191,12 @@ class UserSingleSymptomSeverity(models.Model):
 class Factor(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    level_0 = 'Skipped?'
     level_1 = models.CharField(max_length=50, default='Zero')
     level_2 = models.CharField(max_length=50, default='Low')
     level_3 = models.CharField(max_length=50, default='Medium')
     level_4 = models.CharField(max_length=50, default='High')
     level_5 = models.CharField(max_length=50, default='Max')
-    level_6 = 'Skipped?'
 
     class Meta:
         verbose_name = 'Factor'
@@ -206,7 +206,7 @@ class Factor(models.Model):
         return self.title
 
     def getFactorLevels(self):
-        return [getattr(self, 'level_%s' % (i+1)) for i in range(6)]
+        return [getattr(self, 'level_%s' % i) for i in [1, 2, 3, 4, 5, 0]]
 
 
 # Current Intermittent Factor
@@ -239,7 +239,7 @@ class CurrentIntermittentFactor(models.Model):
     getFactorTitle.short_description = 'Factor'
 
     def getFactorLevels(self):
-        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(6)]
+        return [getattr(self.factor, 'level_%s' % i) for i in [1, 2, 3, 4, 5, 0]]
 
 
 # User Factors
@@ -294,6 +294,12 @@ class UserFactors(models.Model):
 
         return udfs_list
 
+    def getTitle(self):
+        return self.title
+
+    def getCreatedAt(self):
+        return self.created_at
+
 
 # User Intermittent Factor
 class UserIntermittentFactor(models.Model):
@@ -330,13 +336,26 @@ class UserIntermittentFactor(models.Model):
         return self.factor.title
     getFactorTitle.short_description = 'Factor'
 
+    def getLevelNum(self):
+        return self.selected_level if self.selected_level else None
+
     def getLevel(self):
         return getattr(self.factor, 'level_%s' % self.selected_level) if self.selected_level else None
     getLevel.short_description = 'Factor Level'
 
+    def getTitle(self):
+        return self.user_factors.getTitle()
+
+    def getDescription(self):
+        return self.description
+
+    def getCreatedAt(self):
+        return self.user_factors.getCreatedAt()
+
 
 # User Daily Factor Start
 class UserDailyFactorStart(models.Model):
+    title = models.CharField(max_length=100, blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     factor = models.ForeignKey(Factor, on_delete=models.CASCADE)
     created_at = models.DateTimeField('Created at', default=timezone.now)
@@ -344,6 +363,9 @@ class UserDailyFactorStart(models.Model):
     class Meta:
         verbose_name = 'User Daily Factor Start'
         verbose_name_plural = 'User Daily Factor Starts'
+
+    def getTitle(self):
+        return self.title
 
     def getFactor(self):
         return self.factor
@@ -356,21 +378,22 @@ class UserDailyFactorStart(models.Model):
         return UserDailyFactorMeta.objects.filter(
             user_daily_factor_start=self).order_by('-created_at').first()
 
-    def getLevel(self):
-        udfm = self.getTheLatestMeta()
+    def getLevel(self, created_at=None):
+        udfm = UserDailyFactorMeta.objects.get(
+            user_daily_factor_start=self, created_at=created_at) if created_at else self.getTheLatestMeta()
 
         selected_level = udfm.selected_level if udfm else None
 
-        return getattr(self.factor, 'level_%s' % selected_level) if selected_level else None
+        return getattr(self.factor, 'level_%s' % selected_level) if selected_level is not None else None
     getLevel.short_description = 'Factor Level'
 
     def getFactorLevels(self):
-        return [getattr(self.factor, 'level_%s' % (i+1)) for i in range(6)]
+        return [getattr(self.factor, 'level_%s' % i) for i in [1, 2, 3, 4, 5, 0]]
 
     def getDescription(self):
         udfm = self.getTheLatestMeta()
 
-        return udfm.description if udfm else None
+        return udfm.getDescription() if udfm else ''
 
     def isEnded(self):
         try:
@@ -412,3 +435,15 @@ class UserDailyFactorMeta(models.Model):
     class Meta:
         verbose_name = 'User Daily Factor Meta'
         verbose_name_plural = 'User Daily Factor Metas'
+
+    def getTitle(self):
+        return self.user_daily_factor_start.getTitle()
+
+    def getDescription(self):
+        return self.description if self.description else ''
+
+    def getLevelNum(self):
+        return self.selected_level
+
+    def getCreatedAt(self):
+        return self.created_at

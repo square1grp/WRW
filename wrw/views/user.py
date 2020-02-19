@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
-from wrw.models import User, Symptom, UserSingleSymptomSeverity
+from wrw.models import User, Symptom, Factor, UserSingleSymptomSeverity, UserIntermittentFactor, UserDailyFactorMeta
 from wrw.utils import isUserLoggedIn
 from datetime import datetime
 from plotly.offline import plot
@@ -34,8 +34,6 @@ class UserPage(View):
         for index, symptom_updates in enumerate(symptom_updates_list):
             item_list = symptom_updates['data']
 
-            sizes = [10] * len(item_list)
-
             line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
             fig.add_trace(go.Scatter(x=[item['created_at'] for item in item_list],
                                      y=[item['severity']
@@ -44,7 +42,7 @@ class UserPage(View):
                                      hovertext=[item['title']
                                                 for item in item_list],
                                      mode='lines+markers',
-                                     marker=dict(size=sizes, opacity=1, color='rgb(%s)' % colors[index], line=dict(
+                                     marker=dict(size=[10] * len(item_list), opacity=1, color='rgb(%s)' % colors[index], line=dict(
                                          width=12, color=line_colors)),
                                      line_color='rgb(%s)' % colors[index],
                                      customdata=item_list,
@@ -54,7 +52,7 @@ class UserPage(View):
                                  y=[0],
                                  hoverinfo='none',
                                  mode='markers',
-                                 marker=dict(size=sizes, opacity=0, line=dict(width=0))))
+                                 marker=dict(size=10, opacity=0, line=dict(width=0))))
 
         fig.add_layout_image(
             dict(
@@ -102,6 +100,70 @@ class UserPage(View):
         return plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
 
+    def getFactorsScatterChart(self, user):
+        fig = go.Figure()
+
+        factor_updates_list = []
+
+        for factor in Factor.objects.all():
+            uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
+                selected_level__isnull=True).order_by('user_factors__created_at')
+
+            factor_updates_list.append(
+                dict(name=str(factor), data=[dict(
+                    title=uif.getTitle(),
+                    description=uif.getDescription(),
+                    severity=uif.getLevelNum(),
+                    created_at=uif.getCreatedAt()
+                ) for uif in uif_list]))
+
+        for factor in Factor.objects.all():
+            udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start__user=user, user_daily_factor_start__factor=factor).exclude(
+                selected_level__isnull=True).order_by('created_at')
+
+            factor_updates_list.append(
+                dict(name=str(factor), data=[dict(
+                    title=udfm.getTitle(),
+                    description=udfm.getDescription(),
+                    severity=udfm.getLevelNum(),
+                    created_at=udfm.getCreatedAt()
+                ) for udfm in udfm_list]))
+
+        colors = colorlover.scales['10']['qual']['Paired']
+        colors = ['255, 0, 0'] + [text[4:-2] for text in colors]
+        for index, factor_updates in enumerate(factor_updates_list):
+            item_list = factor_updates['data']
+
+            line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
+            fig.add_trace(go.Scatter(x=[item['created_at'] for item in item_list],
+                                     y=[item['severity']
+                                        for item in item_list],
+                                     hoverinfo='text',
+                                     hovertext=[item['title']
+                                                for item in item_list],
+                                     mode='lines+markers',
+                                     marker=dict(size=[10] * len(item_list), opacity=1, color='rgb(%s)' % colors[index], line=dict(
+                                         width=12, color=line_colors)),
+                                     line_color='rgb(%s)' % colors[index],
+                                     customdata=item_list,
+                                     name=factor_updates['name']))
+
+        fig.add_trace(go.Scatter(x=[datetime.today()],
+                                 y=[0],
+                                 hoverinfo='none',
+                                 mode='markers',
+                                 marker=dict(size=10, opacity=0, line=dict(width=0))))
+
+        fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=True,
+                          paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
+        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
+        fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True, title_text='Frequency/Magnitude',
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5])
+
+        return plot(fig, output_type='div', include_plotlyjs=False,
+                    config=dict(displayModeBar=False))
+
     def get(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 
@@ -114,8 +176,10 @@ class UserPage(View):
             return HttpResponse('No user.')
 
         symptoms_chart = self.getSymptomsScatterChart(user)
+        factors_chart = self.getFactorsScatterChart(user)
 
         return render(request, self.template_name, dict(
             user=user,
-            symptoms_chart=symptoms_chart
+            symptoms_chart=symptoms_chart,
+            factors_chart=factors_chart
         ))

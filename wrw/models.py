@@ -43,11 +43,11 @@ class User(models.Model):
 class Symptom(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    level_0 = models.CharField(max_length=50, default='None')
-    level_1 = models.CharField(max_length=50, default='Mild')
-    level_2 = models.CharField(max_length=50, default='Moderate')
-    level_3 = models.CharField(max_length=50, default='Severe')
-    level_4 = models.CharField(max_length=50, default='Very Severe')
+    level_1 = models.CharField(max_length=50, default='None')
+    level_2 = models.CharField(max_length=50, default='Mild')
+    level_3 = models.CharField(max_length=50, default='Moderate')
+    level_4 = models.CharField(max_length=50, default='Severe')
+    level_5 = models.CharField(max_length=50, default='Very Severe')
 
     class Meta:
         verbose_name = 'Symptom'
@@ -57,7 +57,7 @@ class Symptom(models.Model):
         return self.name
 
     def getSymptomLevels(self):
-        return [getattr(self, 'level_%s' % i) for i in range(5)]
+        return [getattr(self, 'level_%s' % i) for i in [1, 2, 3, 4, 5]]
 
 
 # Current User Symptom
@@ -90,7 +90,7 @@ class CurrentUserSymptom(models.Model):
     getSymptomName.short_description = 'Symptom'
 
     def getSymptomLevels(self):
-        return [getattr(self.symptom, 'level_%s' % i) for i in range(5)]
+        return [getattr(self.symptom, 'level_%s' % i) for i in [1, 2, 3, 4, 5]]
 
 
 # User Symptom Severities

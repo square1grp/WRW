@@ -28,8 +28,8 @@
 
         <div class="col-12 col-md-6 ml-md-auto my-auto">
             <select class="form-control symptom">
-                {% for symptom in symptoms %}
-                <option value="{{symptom.id}}">{{symptom}}</option>
+                {% for user_symptom in user_symptoms %}
+                <option value="{{user_symptom.id}}">{{user_symptom}}</option>
                 {% endfor %}
             </select>
         </div>

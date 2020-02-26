@@ -7,6 +7,7 @@ from datetime import datetime, date, timedelta
 from plotly.offline import plot
 import plotly.graph_objects as go
 import colorlover
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class UserPage(View):
@@ -106,13 +107,17 @@ class UserPage(View):
 
             latest_date = latest_udfm['created_at'].date()
 
+            today = datetime.today()
+            d_days = (today.date() - latest_date).days-1
+            d_days_condition = 0 if today.hour < 12 else -1
+
             if latest_udfm['is_ended']:
                 d_days = (latest_udfm['ended_at'].date() - latest_date).days-1
-            else:
-                d_days = (date.today() - latest_date).days-1
+                today = latest_udfm['ended_at'].date()
+                d_days_condition = 0
 
-            while d_days > (0 if datetime.today().hour < 12 else -1):
-                created_at = date.today()-timedelta(days=d_days)
+            while d_days > d_days_condition:
+                created_at = today-timedelta(days=d_days)
                 created_at = '%s 12:00:00' % created_at.strftime(
                     '%m/%d/%Y')
                 created_at = datetime.strptime(
@@ -236,11 +241,22 @@ class UserPage(View):
         except:
             return HttpResponse('No user.')
 
+        user_symptoms = []
+        for symptom in Symptom.objects.all():
+            try:
+                UserSingleSymptomSeverity.objects.filter(
+                    user_symptom_severities__user=user, symptom=symptom)
+
+                user_symptoms.append(symptom)
+            except ObjectDoesNotExist:
+                pass
+
         symptoms_chart = self.getSymptomsScatterChart(user)
         factors_chart = self.getFactorsScatterChart(user)
 
         return render(request, self.template_name, dict(
             user=user,
+            user_symptoms=user_symptoms,
             symptoms_chart=symptoms_chart,
             factors_chart=factors_chart
         ))

@@ -21,6 +21,21 @@ class SymptomPage(View):
 
         return users
 
+    def getFaceClassName(self, score):
+        if score > 60:
+            return 'ecstatic-face'
+
+        if score > 20:
+            return 'happy-face'
+
+        if score > -20:
+            return 'neutral-face'
+
+        if score > -60:
+            return 'sad-face'
+
+        return 'miserable-face'
+
     def getAvgSymptomScore(self, symptom, factor):
         scores = []
 
@@ -29,7 +44,6 @@ class SymptomPage(View):
 
             start_severity = severities[0] - 1
             end_severity = severities[-1] - 1
-            
 
             actual = end_severity - start_severity
             max_pos = 4 - start_severity
@@ -64,9 +78,11 @@ class SymptomPage(View):
         factors = user.getFactorsBySymptom(symptom)
 
         for factor in factors:
+            score = self.getAvgSymptomScore(symptom, factor)
             rows.append(dict(
                 factor=factor,
-                score=self.getAvgSymptomScore(symptom, factor),
+                score=score,
+                face_class=self.getFaceClassName(score),
                 user_count=len(
                     self.getUsersByFactorAndSymptom(symptom, factor))
             ))

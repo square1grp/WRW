@@ -1,5 +1,12 @@
 {% extends 'layouts/default.html' %}
 
+{% block head %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/symptom.css' %}">
+
+{% endblock %}
+
 {% block content %}
 
 <div class="container symptom-page" style="margin-top: 65px;">
@@ -30,7 +37,7 @@
                                 </a>
                             </h5>
                         </td>
-                        <td class="text-center"><div class="face {{row.score_class}}"></div><div class="score">{{row.score}}</div></td>
+                        <td class="text-center"><div class="face {{row.face_class}}"></div><div class="score">{{row.score}}</div></td>
                         <td class="text-center">{{row.user_count}}</td>
                     </tr>
                     {% endfor %}

@@ -1,0 +1,31 @@
+.symptom-page #factors-table div.face {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+}
+
+.symptom-page #factors-table *[class*="-face"] {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.symptom-page #factors-table .ecstatic-face {
+  background-image: url("../images/EcstaticFace.png");
+}
+
+.symptom-page #factors-table .happy-face {
+  background-image: url("../images/HappyFace.png");
+}
+
+.symptom-page #factors-table .neutral-face {
+  background-image: url("../images/NeutralFace.png");
+}
+
+.symptom-page #factors-table .sad-face {
+  background-image: url("../images/SadFace.png");
+}
+
+.symptom-page #factors-table .miserable-face {
+  background-image: url("../images/MiserableFace.png");
+}

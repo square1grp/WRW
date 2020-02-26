@@ -42,6 +42,9 @@ class SymptomPage(View):
         for user in User.objects.all():
             severities = user.getSymptomSeverities(symptom, factor)
 
+            if not severities:
+                continue
+
             start_severity = severities[0] - 1
             end_severity = severities[-1] - 1
 
@@ -75,7 +78,12 @@ class SymptomPage(View):
         symptom = Symptom.objects.get(id=symptom_id)
 
         rows = []
-        factors = user.getFactorsBySymptom(symptom)
+        factors = []
+        users = User.objects.all()
+        for user in users:
+            for factor in user.getFactorsBySymptom(symptom):
+                if factor not in factors:
+                    factors.append(factor)
 
         for factor in factors:
             score = self.getAvgSymptomScore(symptom, factor)

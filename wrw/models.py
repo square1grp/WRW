@@ -59,10 +59,11 @@ class User(models.Model):
             uss_list = [uss for uss in UserSingleSymptomSeverity.objects.filter(
                 symptom=symptom,
                 user_symptom_severities__user=self,
-                user_symptom_severities__created_at__range=(created_at_list[0], created_at_list[-1]))]
+                user_symptom_severities__created_at__range=(created_at_list[0], created_at_list[-1])).order_by('user_symptom_severities__created_at')]
 
             if len(uss_list) > 1:
-                return[uss_list[0].getLevelNum(), uss_list[-1].getLevelNum()]
+                severities = [uss_list[0].getLevelNum(), uss_list[-1].getLevelNum()]
+                return severities
 
         return None
 

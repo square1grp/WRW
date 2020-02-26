@@ -93,7 +93,7 @@ class UserPage(View):
 
         fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=True,
                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
-        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True, ticks="inside",
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
         fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 5])
@@ -222,7 +222,7 @@ class UserPage(View):
         fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=True,
                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest',
                           yaxis=dict(tickvals=[i for i in range(6)]))
-        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True,
+        fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True, ticks="inside",
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True)
         fig.update_yaxes(showticklabels=True, showgrid=False, zeroline=True, title_text='Frequency/Magnitude',
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, autorange=False, range=[0, 6])

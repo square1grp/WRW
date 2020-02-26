@@ -38,6 +38,45 @@ class User(models.Model):
     def __str__(self):
         return self.first_name + ' ' + self.last_name
 
+    def getSymptomSeverities(self, symptom, factor):
+        uifs = UserIntermittentFactor.objects.filter(
+            user_factors__user=self, factor=factor).order_by('user_factors__created_at')
+
+        created_at_list = [uif.getCreatedAt() for uif in uifs]
+
+        udfms = UserDailyFactorMeta.objects.filter(
+            user_daily_factor_start__user=self, user_daily_factor_start__factor=factor).order_by('created_at')
+
+        for udfm in udfms:
+            created_at_list.append(udfm.getCreatedAt())
+
+            if udfm.isEnded:
+                created_at_list.append(udfm.getEndedAt())
+
+        created_at_list = sorted(created_at_list)
+
+        if len(created_at_list) > 1:
+            uss_list = [uss for uss in UserSingleSymptomSeverity.objects.filter(
+                symptom=symptom,
+                user_symptom_severities__user=self,
+                user_symptom_severities__created_at__range=(created_at_list[0], created_at_list[-1]))]
+
+            if len(uss_list) > 1:
+                return[uss_list[0].getLevelNum(), uss_list[-1].getLevelNum()]
+
+        return None
+
+    def getFactorsBySymptom(self, symptom):
+        factors = []
+
+        for factor in Factor.objects.all():
+            severities = self.getSymptomSeverities(symptom, factor)
+
+            if severities is not None:
+                factors.append(factor)
+
+        return factors
+
 
 # Symptom Model
 class Symptom(models.Model):
@@ -171,11 +210,11 @@ class UserSingleSymptomSeverity(models.Model):
     getSymptomName.short_description = 'Symptom'
 
     def getLevel(self):
-        return getattr(self.symptom, 'level_%s' % self.selected_level) if self.selected_level else None
+        return getattr(self.symptom, 'level_%s' % self.selected_level)
     getLevel.short_description = 'Symptom Level'
 
     def getLevelNum(self):
-        return self.selected_level if self.selected_level else None
+        return self.selected_level
 
     def getTitle(self):
         return self.user_symptom_severities.getTitle()
@@ -337,10 +376,10 @@ class UserIntermittentFactor(models.Model):
     getFactorTitle.short_description = 'Factor'
 
     def getLevelNum(self):
-        return self.selected_level if self.selected_level else None
+        return self.selected_level
 
     def getLevel(self):
-        return getattr(self.factor, 'level_%s' % self.selected_level) if self.selected_level else None
+        return getattr(self.factor, 'level_%s' % self.selected_level)
     getLevel.short_description = 'Factor Level'
 
     def getTitle(self):

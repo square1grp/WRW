@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.views import View
-from ..utils import isUserLoggedIn, gernerateUserToken
+from wrw.utils import isUserLoggedIn, gernerateUserToken
 from wrw.models import Symptom, User
 
 

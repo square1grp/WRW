@@ -29,6 +29,7 @@ class SymptomPage(View):
 
             start_severity = severities[0] - 1
             end_severity = severities[-1] - 1
+            
 
             actual = end_severity - start_severity
             max_pos = 4 - start_severity

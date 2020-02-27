@@ -13,10 +13,10 @@ from django.core.exceptions import ObjectDoesNotExist
 class UserPage(View):
     template_name = 'pages/user.html'
 
-    def getSymptomsScatterChart(self, user):
-        fig = go.Figure()
-
+    def getSymptomsScatters(self, user, for_sync=False):
         symptom_updates_list = []
+        scatters = []
+        created_at_list = []
 
         for symptom in Symptom.objects.all():
             usss_list = UserSingleSymptomSeverity.objects.filter(
@@ -35,22 +35,41 @@ class UserPage(View):
         for index, symptom_updates in enumerate(symptom_updates_list):
             item_list = symptom_updates['data']
 
-            line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
-            fig.add_trace(go.Scatter(x=[item['created_at'] for item in item_list],
-                                     y=[item['severity']
-                                        for item in item_list],
-                                     hoverinfo='text',
-                                     hovertext=[item['title']
-                                                for item in item_list],
-                                     mode='lines+markers',
-                                     marker=dict(size=[10] * len(item_list), opacity=1, color='rgb(%s)' % colors[index], line=dict(
-                                         width=12, color=line_colors)),
-                                     line_color='rgb(%s)' % colors[index],
-                                     customdata=item_list,
-                                     name=symptom_updates['name']))
+            if not for_sync:
+                line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
 
-        fig.add_trace(go.Scatter(x=[datetime.today()],
-                                 y=[0],
+                scatters.append(
+                    go.Scatter(x=[item['created_at'] for item in item_list],
+                               y=[item['severity']
+                                  for item in item_list],
+                               hoverinfo='text',
+                               hovertext=[item['title']
+                                          for item in item_list],
+                               mode='lines+markers',
+                               marker=dict(size=[10] * len(item_list), opacity=1, color='rgb(%s)' % colors[index], line=dict(
+                                   width=12, color=line_colors)),
+                               line_color='rgb(%s)' % colors[index],
+                               customdata=item_list,
+                               name=symptom_updates['name']))
+            else:
+                for item in item_list:
+                    if item['created_at'] not in created_at_list:
+                        created_at_list.append(item['created_at'])
+
+        return scatters if not for_sync else created_at_list
+
+    def getSymptomsScatterChart(self, user):
+        fig = go.Figure()
+
+        for scatter in self.getSymptomsScatters(user):
+            fig.add_trace(scatter)
+
+        created_at_list = self.getFactorsScatters(user, True)
+        if datetime.today() not in created_at_list:
+            created_at_list.append(datetime.today())
+
+        fig.add_trace(go.Scatter(x=created_at_list,
+                                 y=[0]*len(created_at_list),
                                  hoverinfo='none',
                                  mode='markers',
                                  marker=dict(size=10, opacity=0, line=dict(width=0))))
@@ -159,10 +178,10 @@ class UserPage(View):
 
         return sorted(udfm_updates, key=lambda k: k['created_at'])
 
-    def getFactorsScatterChart(self, user):
-        fig = go.Figure()
-
+    def getFactorsScatters(self, user, for_sync=False):
         factor_updates_list = []
+        scatters = []
+        created_at_list = []
 
         for factor in Factor.objects.all():
             uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
@@ -196,25 +215,45 @@ class UserPage(View):
 
         colors = colorlover.scales['10']['qual']['Paired']
         colors = ['255, 0, 0'] + [text[4:-2] for text in colors]
+
         for index, factor_updates in enumerate(factor_updates_list):
             item_list = factor_updates['data']
 
-            line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
-            fig.add_trace(go.Scatter(x=[item['created_at'] for item in item_list],
-                                     y=[item['severity']
-                                        for item in item_list],
-                                     hoverinfo='text',
-                                     hovertext=[item['title']
-                                                for item in item_list],
-                                     mode='lines+markers',
-                                     marker=dict(size=[10] * len(item_list), opacity=1, color='rgb(%s)' % colors[index], line=dict(
-                                         width=12, color=line_colors)),
-                                     line_color='rgb(%s)' % colors[index],
-                                     customdata=item_list,
-                                     name=factor_updates['name']))
+            if not for_sync:
+                line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
 
-        fig.add_trace(go.Scatter(x=[datetime.today()],
-                                 y=[0],
+                scatters.append(
+                    go.Scatter(x=[item['created_at'] for item in item_list],
+                               y=[item['severity'] if not for_sync else -1
+                                  for item in item_list],
+                               hoverinfo='text',
+                               hovertext=[item['title']
+                                          for item in item_list],
+                               mode='lines+markers',
+                               marker=dict(size=[10] * len(item_list), opacity=1, color='rgb(%s)' % colors[index], line=dict(
+                                   width=12, color=line_colors)),
+                               line_color='rgb(%s)' % colors[index],
+                               customdata=item_list,
+                               name=factor_updates['name']))
+            else:
+                for item in item_list:
+                    if item['created_at'] not in created_at_list:
+                        created_at_list.append(item['created_at'])
+
+        return scatters if not for_sync else created_at_list
+
+    def getFactorsScatterChart(self, user):
+        fig = go.Figure()
+
+        for scatter in self.getFactorsScatters(user):
+            fig.add_trace(scatter)
+
+        created_at_list = self.getSymptomsScatters(user, True)
+        if datetime.today() not in created_at_list:
+            created_at_list.append(datetime.today())
+
+        fig.add_trace(go.Scatter(x=created_at_list,
+                                 y=[0]*len(created_at_list),
                                  hoverinfo='none',
                                  mode='markers',
                                  marker=dict(size=10, opacity=0, line=dict(width=0))))

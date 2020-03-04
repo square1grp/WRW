@@ -1,0 +1,78 @@
+{% extends 'layouts/default.html' %}
+
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/factor.css' %}">
+<script src="{% static 'js/factor.js' %}"></script>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container factor-page" style="margin-top: 65px;">
+    <div class="row">
+        <a class="btn btn-primary ml-auto mr-2 my-2" href="/symptom/{{symptom.id}}" role="button">
+            Back to the {{symptom.name}}
+        </a>
+        <a class="btn btn-primary my-2" href="/" role="button">Back to Home</a>
+
+        <h2 class="col-12 text-center">{{factor.title}} for {{symptom.name}}</h2>
+
+        <hr class="w-50 mx-auto mb-5 d-block" style="border-width: 4px;" />
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col-3">
+                    <h2>Description</h2>
+                </div>
+                <div class="col-9">
+                    <p>{{factor.description}}</p>
+                </div>
+            </div>
+
+            <hr class="w-100 d-block" style="border-width: 2px;" />
+
+            <div class="row">
+                <div class="col-3 col-lg-2">
+                    <h2>Statistics</h2>
+                </div>
+
+                <div class="col-12 col-lg-10">
+                    {{statisctics_charts|safe}}
+                </div>
+            </div>
+
+            <hr class="w-100 d-block" style="border-width: 2px;" />
+
+            <div class="row">
+                <div class="col-4">
+                    <h1>User Timelines</h1>
+                </div>
+                <div class="col-8">
+                </div>
+            </div>
+
+            {% for user_timeline in user_timelines %}
+            <div class="row">
+                <div class="col-12 col-lg-4 d-flex flex-column">
+                    <h2 class="d-flex   ">
+                        <span class="mr-auto">{{user_timeline.user.name}}</span>
+                        <span class="mx-auto">{{user_timeline.user.sex}}</span>
+                        <span class="">{{user_timeline.user.age}} y.o.</span>
+                    </h2>
+                </div>
+
+                <div class="col-12 col-lg-8">
+                    {{user_timeline.chart|safe}}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

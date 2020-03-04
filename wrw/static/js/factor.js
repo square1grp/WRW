@@ -1,17 +1,4 @@
 $(document).ready(function() {
-  $("#menu-btn").click(function() {
-    $("#menu").toggle();
-  });
-
-  $("a#redirect_to_symptom").click(function(e) {
-    e.preventDefault();
-
-    symptom_id = $("select.symptom").val();
-    window.location.href = "/symptom/" + symptom_id.toString();
-  });
-});
-
-$(document).ready(function() {
   $("div.plotly-graph-div")
     .on("plotly_hover", function(e, data) {
       if (data.points.length == 0) return false;

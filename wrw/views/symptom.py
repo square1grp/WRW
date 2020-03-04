@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.views import View
-from wrw.utils import isUserLoggedIn
+from wrw.utils import isUserLoggedIn, calcScore
 from wrw.models import Symptom, User
 from statistics import mean
 
@@ -45,15 +45,7 @@ class SymptomPage(View):
             if not severities:
                 continue
 
-            start_severity = severities[0] - 1
-            end_severity = severities[-1] - 1
-
-            actual = end_severity - start_severity
-            max_pos = 4 - start_severity
-            max_neg = 0 - start_severity
-
-            score = (-100 * actual /
-                     max_pos) if actual > 0 else (100 * actual/max_neg)
+            score = calcScore(severities)
 
             scores.append(score)
 

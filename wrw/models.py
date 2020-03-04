@@ -38,7 +38,7 @@ class User(models.Model):
     def __str__(self):
         return self.first_name + ' ' + self.last_name
 
-    def getSymptomSeverities(self, symptom, factor):
+    def getFactorStartAndEndDates(self, factor):
         uifs = UserIntermittentFactor.objects.filter(
             user_factors__user=self, factor=factor).order_by('user_factors__created_at')
 
@@ -55,14 +55,23 @@ class User(models.Model):
 
         created_at_list = sorted(created_at_list)
 
-        if len(created_at_list) > 1:
+        return [
+            created_at_list[0] if len(created_at_list) else None,
+            created_at_list[-1] if len(created_at_list) > 1 else None
+        ]
+
+    def getSymptomSeverities(self, symptom, factor):
+        [started_at, ended_at] = self.getFactorStartAndEndDates(factor)
+
+        if started_at and ended_at:
             uss_list = [uss for uss in UserSingleSymptomSeverity.objects.filter(
                 symptom=symptom,
                 user_symptom_severities__user=self,
-                user_symptom_severities__created_at__range=(created_at_list[0], created_at_list[-1])).order_by('user_symptom_severities__created_at')]
+                user_symptom_severities__created_at__range=(started_at, ended_at)).order_by('user_symptom_severities__created_at')]
 
             if len(uss_list) > 1:
-                severities = [uss_list[0].getLevelNum(), uss_list[-1].getLevelNum()]
+                severities = [
+                    uss_list[0].getLevelNum(), uss_list[-1].getLevelNum()]
                 return severities
 
         return None

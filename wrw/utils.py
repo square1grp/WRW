@@ -33,7 +33,10 @@ def calcScore(severities=[]):
     max_pos = 4 - start_severity
     max_neg = 0 - start_severity
 
-    score = (-100 * actual /
+    try:
+        score = (-100 * actual /
              max_pos) if actual > 0 else (100 * actual/max_neg)
+    except:
+        score = 0
 
     return score

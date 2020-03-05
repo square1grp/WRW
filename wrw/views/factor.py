@@ -67,7 +67,7 @@ class FactorPage(View):
                 text=['%s User%s' % (y_value, 's' if y_value > 1 else '')
                       for y_value in y_values],
                 textposition='auto',
-                name='%s toal User%s' % (
+                name='%s total User%s' % (
                     len(scores), 's' if len(scores) > 1 else ''),
                 hoverinfo='skip', width=width, marker_color='#8BC8DB'))
 
@@ -195,7 +195,7 @@ class FactorPage(View):
         fig.update_layout(height=200, margin=dict(b=20, t=20, r=180, l=60), showlegend=False,
                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest')
         fig.update_xaxes(showticklabels=True, showgrid=False, zeroline=True, ticks="inside",
-                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, range=[item_list[0]['created_at'], datetime.today()])
+                         showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, range=[item_list[0]['created_at'], item_list[-1]['created_at']])
         fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=True,
                          showline=True, linewidth=5, linecolor='rgba(0,0,0,0.5)', fixedrange=True, range=[0, 5])
 

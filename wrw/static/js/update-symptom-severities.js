@@ -9,7 +9,28 @@ $(document).ready(function () {
 
     };
 
-    $("form.uss-form button.delete").click(function () {
+    $("form.uss-form .cus.delete").click(function (e) {
+        e.preventDefault();
+
+        var symptom_id = $(this).data("symptom-id");
+        $(this).parents("tr").remove()
+
+        var delete_url = $(this).attr("href");
+        $.post(delete_url, {
+            action: "delete_cus",
+            symptom_id: symptom_id
+        }, function (res_data) {
+            console.log(res_data)
+        });
+
+        $.each(org_symptoms, function (idx, symptom) {
+            if (symptom["id"] == symptom_id) {
+                $("form.uss-form select.symptoms").append("<option value=" + symptom["id"] + ">" + symptom["name"] + "</option>");
+            }
+        });
+    });
+
+    $("form.uss-form .usss.delete").click(function () {
         var symptom_id = $(this).data("symptom-id");
         $(this).parents("tr").remove()
 

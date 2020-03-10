@@ -97,7 +97,7 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-danger delete" id="delete-symptom-{{usss.symptom.id}}" type="button" data-symptom-id="{{usss.symptom.id}}">
+                                        <button class="btn btn-danger delete usss" id="delete-symptom-{{usss.symptom.id}}" type="button" data-symptom-id="{{usss.symptom.id}}">
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>
@@ -129,7 +129,7 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <a class="btn btn-danger delete" href="/user/{{user_id}}/update_symptom_severities?action=delete_cus&symptom_id={{cus.symptom.id}}">
+                                        <a class="btn btn-danger delete cus" href="/user/{{user_id}}/update_symptom_severities/" data-symptom-id={{cus.symptom.id}}>
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </a>
                                     </div>

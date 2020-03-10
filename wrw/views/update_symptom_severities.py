@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views import View
 from wrw.models import User, Symptom, CurrentUserSymptom, UserSymptomSeverities, UserSingleSymptomSeverity
@@ -76,6 +76,14 @@ class UpdateSymptomSeveritiesPage(View):
             uss = UserSymptomSeverities.objects.get(id=params['uss_id'])
             uss.delete()
 
+        elif params['action'] == 'delete_cus':
+            symptom_id = params['symptom_id']
+            cus = CurrentUserSymptom.objects.get(
+                user=user, symptom__id=symptom_id)
+            cus.delete()
+
+            return JsonResponse(dict(removed=True))
+
         elif params['action'] in ['edit', 'date_filter']:
             if 'uss_id' in params:
                 kwargs['uss_id'] = params['uss_id']
@@ -98,13 +106,7 @@ class UpdateSymptomSeveritiesPage(View):
 
         params = request.GET
         if 'action' in params:
-            if params['action'] == 'delete_cus':
-                symptom_id = params['symptom_id']
-                cus = CurrentUserSymptom.objects.get(
-                    user=user, symptom__id=symptom_id)
-                cus.delete()
-
-            elif params['action'] == "add_cus":
+            if params['action'] == "add_cus":
                 symptom_id = params['symptom_id']
                 cus = CurrentUserSymptom(
                     user=user, symptom=Symptom.objects.get(id=symptom_id))

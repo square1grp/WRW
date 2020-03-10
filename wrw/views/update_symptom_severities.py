@@ -198,8 +198,11 @@ class UpdateSymptomSeveritiesPage(View):
                 title=uss.title
             ) for uss in UserSymptomSeverities.objects.filter(user=user).order_by('-created_at')]
 
+        default_title = datetime.now().strftime('%m/%d Update')
+
         return render(request, self.template_name, dict(
             user_id=user_id,
+            default_title=default_title,
             selected_uss=selected_uss,
             cus_list=cus_list,
             uss_list=uss_list,

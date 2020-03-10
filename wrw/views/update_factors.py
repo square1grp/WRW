@@ -344,8 +344,11 @@ class UpdateFactorsPage(View):
                 title=uf.title
             ) for uf in UserFactors.objects.filter(user=user).order_by('-created_at')]
 
+        default_title = datetime.now().strftime('%m/%d Update')
+
         return render(request, self.template_name, dict(
             user_id=user_id,
+            default_title=default_title,
             cif_list=cif_list,
             udfs_list=udfs_list,
             factors=factors,

@@ -64,7 +64,7 @@
                     <div class="col-12 col-lg-6">
                         <div class="form-group row mx-lg-0">
                             <label for="title" class="col-form-label label-1">Title</label>
-                            <input id="title" name="title" class="form-control col" {% if selected_uf %} value="{{selected_uf.title}}" {% endif %} required />
+                            <input id="title" name="title" class="form-control col" value="{% if selected_uf %}{{selected_uf.title}}{% else %}{{ default_title }}{% endif %}" required />
                         </div>
                     </div>
                 </div>

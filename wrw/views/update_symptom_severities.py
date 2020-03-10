@@ -168,7 +168,7 @@ class UpdateSymptomSeveritiesPage(View):
 
                 symptoms.append(_symptom)
 
-        date_filter = datetime.now().strftime('%m/%d/%Y')
+        date_filter = None
         if 'date_filter' in kwargs:
             date_filter = kwargs['date_filter']
 

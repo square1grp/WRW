@@ -319,7 +319,7 @@ class UpdateFactorsPage(View):
             levels=factor.getFactorLevels()
         ) for factor in Factor.objects.all()]
 
-        date_filter = datetime.now().strftime('%m/%d/%Y')
+        date_filter = None
         if 'date_filter' in kwargs:
             date_filter = kwargs['date_filter']
 

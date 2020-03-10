@@ -2,6 +2,10 @@
   width: 80px;
 }
 
+.update-page form.date_filter .label-1 {
+  width: 120px;
+}
+
 .table-borderless td,
 .table-borderless thead th {
   border: none;

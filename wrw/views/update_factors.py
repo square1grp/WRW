@@ -125,6 +125,15 @@ class UpdateFactorsPage(View):
             uf = UserFactors.objects.get(id=params['uf_id'])
             uf.delete()
 
+        elif params['action'] == 'add_cif':
+            factor_id = params['factor_id']
+
+            cif = CurrentIntermittentFactor(
+                user=user, factor=Factor.objects.get(id=factor_id))
+            cif.save()
+
+            return JsonResponse(dict(added=True))
+
         elif params['action'] == 'delete_cif':
             factor_id = params['factor_id']
 
@@ -190,16 +199,6 @@ class UpdateFactorsPage(View):
                             user=user, factor=Factor.objects.get(id=factor_id), created_at=started_at)
 
                         udfs.save()
-                except:
-                    pass
-
-            elif params['action'] == 'add_cif':
-                factor_id = params['factor_id']
-
-                try:
-                    cif = CurrentIntermittentFactor(
-                        user=user, factor=Factor.objects.get(id=factor_id))
-                    cif.save()
                 except:
                     pass
 

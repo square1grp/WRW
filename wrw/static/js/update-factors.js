@@ -11,7 +11,8 @@ $(document).ready(function () {
 
     $("form.uf-form button.delete:not(.end-daily-factor)").click(function () {
         var factor_id = $(this).data("factor-id");
-        $(this).parents("tr").remove()
+        $(this).parents("tr").remove();
+
         $.each(org_factors, function (idx, factor) {
             if (factor["id"] == factor_id) {
                 $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
@@ -23,7 +24,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         var factor_id = $(this).data("factor-id");
-        $(this).parents("tr").remove()
+        $(this).parents("tr").remove();
 
         var delete_url = $(this).attr("href");
         $.post(delete_url, {
@@ -63,10 +64,18 @@ $(document).ready(function () {
         var udfs_id = $(this).data("udfs-id");
 
         if (udfs_id > 0) {
+            $(this).parents("tr").remove();
             var date = $("#date").val();
             var time = $("#time").val();
 
-            window.location.href = "/user/" + user_id + "/update_factors/?action=add_udfe&udfs_id=" + udfs_id + "&date=" + date + "&time=" + time;
+            $.post("/user/" + user_id + "/update_factors/", {
+                action: "add_udfe",
+                udfs_id: udfs_id,
+                date: date,
+                time: time
+            }, function (res_data) {
+                // console.log(res_data)
+            });
         }
     });
 

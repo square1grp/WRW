@@ -134,6 +134,21 @@ class UpdateFactorsPage(View):
 
             return JsonResponse(dict(removed=True))
 
+        elif params['action'] == 'add_udfe':
+            udfs_id = params['udfs_id']
+
+            started_at = '%s %s' % (params['date'], params['time'])
+            started_at = datetime.strptime(started_at, '%m/%d/%Y %H:%M:%S')
+
+            udfs = UserDailyFactorStart.objects.get(id=udfs_id)
+
+            udfe = UserDailyFactorEnd(
+                user_daily_factor_start=udfs, created_at=started_at)
+
+            udfe.save()
+
+            return JsonResponse(dict(removed=True))
+
         elif params['action'] in ['edit', 'date_filter']:
             if 'uf_id' in params:
                 kwargs['uf_id'] = params['uf_id']
@@ -201,7 +216,7 @@ class UpdateFactorsPage(View):
                     udfs.save()
                 except:
                     pass
-            elif params['action'] in ['add_udfe', 'convert-to-intermittent']:
+            elif params['action'] in ['convert-to-intermittent']:
                 udfs_id = params['udfs_id']
 
                 started_at = '%s %s' % (params['date'], params['time'])

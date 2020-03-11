@@ -258,42 +258,6 @@ class UserPage(View):
                                  mode='markers',
                                  marker=dict(size=10, opacity=0, line=dict(width=0))))
 
-        fig.add_layout_image(
-            dict(
-                source="/static/images/MiserableFace.png",
-                xref="paper", yref="paper",
-                x=-0.05, y=0.9,
-                sizex=0.15, sizey=0.15
-            ))
-        fig.add_layout_image(
-            dict(
-                source="/static/images/SadFace.png",
-                xref="paper", yref="paper",
-                x=-0.05, y=0.7,
-                sizex=0.15, sizey=0.15
-            ))
-        fig.add_layout_image(
-            dict(
-                source="/static/images/NeutralFace.png",
-                xref="paper", yref="paper",
-                x=-0.05, y=0.5,
-                sizex=0.15, sizey=0.15
-            ))
-        fig.add_layout_image(
-            dict(
-                source="/static/images/HappyFace.png",
-                xref="paper", yref="paper",
-                x=-0.05, y=0.3,
-                sizex=0.15, sizey=0.15
-            ))
-        fig.add_layout_image(
-            dict(
-                source="/static/images/EcstaticFace.png",
-                xref="paper", yref="paper",
-                x=-0.05, y=0.1,
-                sizex=0.15, sizey=0.15
-            ))
-
         fig.update_layout(height=250, margin=dict(b=20, t=20, r=180, l=60), showlegend=True,
                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', hovermode='closest',
                           yaxis=dict(tickvals=[i for i in range(6)]))

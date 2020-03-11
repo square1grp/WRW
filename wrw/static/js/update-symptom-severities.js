@@ -20,7 +20,7 @@ $(document).ready(function () {
             action: "delete_cus",
             symptom_id: symptom_id
         }, function (res_data) {
-            console.log(res_data)
+            // console.log(res_data)
         });
 
         $.each(org_symptoms, function (idx, symptom) {

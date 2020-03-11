@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views import View
 from wrw.models import User, Factor, CurrentIntermittentFactor, UserFactors, UserIntermittentFactor, UserDailyFactorStart, UserDailyFactorEnd, UserDailyFactorMeta
@@ -125,6 +125,15 @@ class UpdateFactorsPage(View):
             uf = UserFactors.objects.get(id=params['uf_id'])
             uf.delete()
 
+        elif params['action'] == 'delete_cif':
+            factor_id = params['factor_id']
+
+            cif = CurrentIntermittentFactor.objects.get(
+                user=user, factor__id=factor_id)
+            cif.delete()
+
+            return JsonResponse(dict(removed=True))
+
         elif params['action'] in ['edit', 'date_filter']:
             if 'uf_id' in params:
                 kwargs['uf_id'] = params['uf_id']
@@ -147,7 +156,7 @@ class UpdateFactorsPage(View):
 
         params = request.GET
         if 'action' in params:
-            if params['action'] in ['delete_cif', 'convert-to-daily']:
+            if params['action'] in ['convert-to-daily']:
                 factor_id = params['factor_id']
 
                 try:

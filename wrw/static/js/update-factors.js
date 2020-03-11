@@ -19,6 +19,27 @@ $(document).ready(function () {
         });
     });
 
+    $("form.uf-form .cif.delete").click(function (e) {
+        e.preventDefault();
+
+        var factor_id = $(this).data("factor-id");
+        $(this).parents("tr").remove()
+
+        var delete_url = $(this).attr("href");
+        $.post(delete_url, {
+            action: "delete_cif",
+            factor_id: factor_id
+        }, function (res_data) {
+            // console.log(res_data)
+        });
+
+        $.each(org_factors, function (idx, factor) {
+            if (factor["id"] == factor_id) {
+                $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
+            }
+        });
+    });
+
     $("form.uf-form button#add-intermittent-factor").click(function () {
         var factor_id = $("select#a-intermittent-factors").val();
 

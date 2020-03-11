@@ -76,6 +76,14 @@ class UpdateSymptomSeveritiesPage(View):
             uss = UserSymptomSeverities.objects.get(id=params['uss_id'])
             uss.delete()
 
+        if params['action'] == "add_cus":
+            symptom_id = params['symptom_id']
+            cus = CurrentUserSymptom(
+                user=user, symptom=Symptom.objects.get(id=symptom_id))
+            cus.save()
+
+            return JsonResponse(dict(added=True))
+
         elif params['action'] == 'delete_cus':
             symptom_id = params['symptom_id']
             cus = CurrentUserSymptom.objects.get(
@@ -103,16 +111,6 @@ class UpdateSymptomSeveritiesPage(View):
             user = User.objects.get(id=user_id)
         except ObjectDoesNotExist:
             return HttpResponse('No user.')
-
-        params = request.GET
-        if 'action' in params:
-            if params['action'] == "add_cus":
-                symptom_id = params['symptom_id']
-                cus = CurrentUserSymptom(
-                    user=user, symptom=Symptom.objects.get(id=symptom_id))
-                cus.save()
-
-            return HttpResponseRedirect('/user/%s/update_symptom_severities' % user_id)
 
         cus_list = CurrentUserSymptom.objects.filter(user=user)
 

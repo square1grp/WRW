@@ -250,7 +250,48 @@ $(document).ready(function () {
     });
 
     $("#date_filter").change(function () {
-        $("form.date_filter").submit();
+        var date_filter = $("#date_filter").val();
+
+        $.post(ajax_url, {
+            action: "get_uf_list",
+            date_filter: date_filter
+        }, function (res_data) {
+            $("table.uf-list tbody tr").remove();
+
+            $.each(res_data.uf_list, function (uf_idx, uf) {
+                var tr_template = `
+                    <tr>
+                        <td class="align-middle"><h5 class="mb-0">`+ uf.title + `</h5></td>
+                        <td class="align-middle"><h5 class="mb-0">`+ uf.date + `</h5></td>
+                        <td class="align-middle"><h5 class="mb-0">`+ uf.time + `</h5></td>
+                        <td class="align-middle">
+                            <div class="row mx-auto">
+                                <form class="my-auto ml-auto mr-2" method="POST">
+                                    <input type="hidden" name="action" value="edit_uf"/>
+                                    <input type="hidden" name="uf_id" value="`+ uf.id + `"/>
+                                    <input type="hidden" name="date_filter" value="`+ date_filter + `"/>
+
+                                    <button class="btn btn-success edit" type="submit">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+
+                                <form class="my-auto" method="POST">
+                                    <input type="hidden" name="action" value="delete"/>
+                                    <input type="hidden" name="uf_id" value="`+ uf.id + `"/>
+
+                                    <button class="btn btn-danger delete" type="submit">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+
+                $("table.uf-list tbody").append(tr_template);
+            });
+        });
     });
 
     $("form.uf-form tbody tr input[type=radio], form.uf-form tbody tr input[type=checkbox]").change(function () {

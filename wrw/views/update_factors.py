@@ -104,6 +104,26 @@ class UpdateFactorsPage(View):
 
         return [udfs_list, current_title, current_date, current_time]
 
+    def getUFList(self, user, date_filter=None):
+        if date_filter:
+            start_timestamp = datetime.strptime(
+                '%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S')
+            end_timestamp = datetime.strptime(
+                '%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S')
+
+            uf_list = UserFactors.objects.filter(user=user, created_at__range=(
+                start_timestamp, end_timestamp)).order_by('-created_at')
+        else:
+            uf_list = UserFactors.objects.filter(
+                user=user).order_by('-created_at')
+
+        return [dict(
+            id=uf.id,
+            date=uf.created_at.strftime('%m/%d/%Y'),
+            time=uf.created_at.strftime('%H:%M:%S'),
+            title=uf.title
+        ) for uf in uf_list]
+
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 
@@ -234,12 +254,12 @@ class UpdateFactorsPage(View):
 
             return JsonResponse(dict(removed=True))
 
-        elif params['action'] in ['edit', 'date_filter']:
-            if 'uf_id' in params:
-                kwargs['uf_id'] = params['uf_id']
+        elif params['action'] == 'edit_uf':
+            kwargs['uf_id'] = params['uf_id']
+            kwargs['date_filter'] = params['date_filter']
 
-            if 'date_filter' in params:
-                kwargs['date_filter'] = params['date_filter']
+        elif params['action'] == 'get_uf_list':
+            return JsonResponse(dict(uf_list=self.getUFList(user, params['date_filter'])))
 
         return self.get(request, *args, **kwargs)
 
@@ -381,26 +401,7 @@ class UpdateFactorsPage(View):
         if 'date_filter' in kwargs:
             date_filter = kwargs['date_filter']
 
-        try:
-            start_timestamp = datetime.strptime(
-                '%s 00:00:00' % date_filter, '%m/%d/%Y %H:%M:%S')
-            end_timestamp = datetime.strptime(
-                '%s 23:59:59' % date_filter, '%m/%d/%Y %H:%M:%S')
-
-            uf_list = [dict(
-                id=uf.id,
-                date=uf.created_at.strftime('%m/%d/%Y'),
-                time=uf.created_at.strftime('%H:%M:%S'),
-                title=uf.title
-            ) for uf in UserFactors.objects.filter(user=user, created_at__range=(start_timestamp, end_timestamp)).order_by('-created_at')]
-        except:
-
-            uf_list = [dict(
-                id=uf.id,
-                date=uf.created_at.strftime('%m/%d/%Y'),
-                time=uf.created_at.strftime('%H:%M:%S'),
-                title=uf.title
-            ) for uf in UserFactors.objects.filter(user=user).order_by('-created_at')]
+        uf_list = self.getUFList(user, date_filter)
 
         return render(request, self.template_name, dict(
             user_id=user_id,

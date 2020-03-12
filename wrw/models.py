@@ -424,10 +424,11 @@ class UserDailyFactorStart(models.Model):
             user_daily_factor_start=self).order_by('-created_at').first()
 
     def getLevel(self, created_at=None):
-        udfm = UserDailyFactorMeta.objects.get(
+        udfm = UserDailyFactorMeta.objects.filter(
             user_daily_factor_start=self, created_at=created_at) if created_at else self.getTheLatestMeta()
 
-        selected_level = udfm.selected_level if udfm else None
+        udfm = udfm[0] if len(udfm) else None
+        selected_level = udfm.selected_level if udfm is not None else None
 
         return getattr(self.factor, 'level_%s' % selected_level) if selected_level is not None else None
     getLevel.short_description = 'Factor Level'

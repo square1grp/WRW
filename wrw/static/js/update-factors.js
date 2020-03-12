@@ -219,7 +219,6 @@ $(document).ready(function () {
                     date: date,
                     time: time
                 }, function (res_data) {
-                    $("table.cdf-list tbody tr").remove();
 
                     $("table.cdf-list tbody").append(getDailyFactorRowTemplate(res_data.udfs));
 

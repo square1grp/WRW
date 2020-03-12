@@ -245,9 +245,9 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="{{udfs.id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
+                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="{{udfs.id}}" data-factor-id="{{udfs.factor_id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
 
-                                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="{{udfs.id}}" {% if udfs.disabled %}disabled{% endif %}>
+                                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="{{udfs.id}}" data-factor-id="{{udfs.factor_id}}" {% if udfs.disabled %}disabled{% endif %}>
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>

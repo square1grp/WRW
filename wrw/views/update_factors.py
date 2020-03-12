@@ -132,7 +132,7 @@ class UpdateFactorsPage(View):
                 user=user, factor=Factor.objects.get(id=factor_id))
             cif.save()
 
-            return JsonResponse(dict(added=True))
+            return JsonResponse(dict(added=True, cif_id=cif.id))
 
         elif params['action'] == 'delete_cif':
             factor_id = params['factor_id']
@@ -142,6 +142,19 @@ class UpdateFactorsPage(View):
             cif.delete()
 
             return JsonResponse(dict(removed=True))
+
+        elif params['action'] == 'add_udfs':
+            factor_id = params['factor_id']
+
+            started_at = '%s %s' % (params['date'], params['time'])
+            started_at = datetime.strptime(started_at, '%m/%d/%Y %H:%M:%S')
+
+            udfs = UserDailyFactorStart(
+                user=user, factor=Factor.objects.get(id=factor_id), created_at=started_at)
+
+            udfs.save()
+
+            return JsonResponse(dict(added=True, udfs_id=udfs.id, factor_id=factor_id))
 
         elif params['action'] == 'add_udfe':
             udfs_id = params['udfs_id']
@@ -202,19 +215,6 @@ class UpdateFactorsPage(View):
                 except:
                     pass
 
-            elif params['action'] == 'add_udfs':
-                factor_id = params['factor_id']
-
-                started_at = '%s %s' % (params['date'], params['time'])
-                started_at = datetime.strptime(started_at, '%m/%d/%Y %H:%M:%S')
-
-                try:
-                    udfs = UserDailyFactorStart(
-                        user=user, factor=Factor.objects.get(id=factor_id), created_at=started_at)
-
-                    udfs.save()
-                except:
-                    pass
             elif params['action'] in ['convert-to-intermittent']:
                 udfs_id = params['udfs_id']
 

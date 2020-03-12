@@ -82,7 +82,7 @@ class UpdateSymptomSeveritiesPage(View):
                 user=user, symptom=Symptom.objects.get(id=symptom_id))
             cus.save()
 
-            return JsonResponse(dict(added=True))
+            return JsonResponse(dict(added=True, cus_id=cus.id))
 
         elif params['action'] == 'delete_cus':
             symptom_id = params['symptom_id']

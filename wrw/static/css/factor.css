@@ -7,3 +7,28 @@
   right: 0;
   top: 20px;
 }
+
+
+.custom-legend p {
+  position: relative;
+  padding-left: 30px;
+}
+
+.custom-legend p:before {
+  content: "";
+  position: absolute;
+  width: 15px;
+  left: 10px;
+}
+
+.custom-legend p:nth-child(1):before {
+  height: 15px;
+  background-color: rgba(255, 255, 0, 0.5);
+  top: 4px;
+}
+
+.custom-legend p:nth-child(2):before {
+  background-color: rgb(99, 110, 250);
+  height: 2px;
+    top: 10px;
+}

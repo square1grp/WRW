@@ -221,9 +221,7 @@ $(document).ready(function () {
                 }, function (res_data) {
                     $("table.cdf-list tbody tr").remove();
 
-                    $.each(res_data.udfs_list, function (udfs_idx, udfs) {
-                        $("table.cdf-list tbody").append(getDailyFactorRowTemplate(udfs));
-                    });
+                    $("table.cdf-list tbody").append(getDailyFactorRowTemplate(res_data.udfs));
 
                     refreshFactorDropdowns();
 

@@ -351,7 +351,9 @@
                                 <form class="my-auto ml-auto mr-2" method="POST">
                                     <input type="hidden" name="action" value="edit_uf"/>
                                     <input type="hidden" name="uf_id" value="{{uf.id}}"/>
-                                    <input type="hidden" name="date_filter" value="{{date_filter}}"/>
+                                    {% if date_filter %}
+                                        <input type="hidden" name="date_filter" value="{{date_filter}}"/>
+                                    {% endif %}
 
                                     <button class="btn btn-success edit" type="submit">
                                         <i class="fa fa-pencil" aria-hidden="true"></i>

@@ -50,7 +50,7 @@ class User(models.Model):
         for udfm in udfms:
             created_at_list.append(udfm.getCreatedAt())
 
-            if udfm.isEnded:
+            if udfm.isEnded():
                 created_at_list.append(udfm.getEndedAt())
 
         created_at_list = sorted(created_at_list)

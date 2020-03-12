@@ -256,7 +256,9 @@ class UpdateFactorsPage(View):
 
         elif params['action'] == 'edit_uf':
             kwargs['uf_id'] = params['uf_id']
-            kwargs['date_filter'] = params['date_filter']
+
+            if 'date_filter' in params:
+                kwargs['date_filter'] = params['date_filter']
 
         elif params['action'] == 'get_uf_list':
             return JsonResponse(dict(uf_list=self.getUFList(user, params['date_filter'])))

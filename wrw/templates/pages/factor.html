@@ -52,14 +52,14 @@
                 <div class="col-4">
                     <h1>User Timelines</h1>
                 </div>
-                <div class="col-8">
+                <div class="col-8 d-flex flex-column">
                 </div>
             </div>
 
             {% for user_timeline in user_timelines %}
-            <div class="row">
+            <div class="row user-timeline">
                 <div class="col-12 col-lg-4 d-flex flex-column">
-                    <h2 class="d-flex   ">
+                    <h2 class="d-flex">
                         <span class="mr-auto">{{user_timeline.user.name}}</span>
                         <span class="mx-auto">{{user_timeline.user.sex}}</span>
                         <span class="">{{user_timeline.user.age}} y.o.</span>
@@ -68,6 +68,11 @@
 
                 <div class="col-12 col-lg-8">
                     {{user_timeline.chart|safe}}
+                </div>
+
+                <div class="d-flex flex-column custom-legend">
+                    <p><small>Yellow Shaded Area: {{factor.title}}Time</small></p>
+                    <p><small>Line: {{symptom.name}}</small></p>
                 </div>
             </div>
             {% endfor %}

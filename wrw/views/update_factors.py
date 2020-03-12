@@ -61,6 +61,49 @@ class UpdateFactorsPage(View):
 
         udfm.save()
 
+    def gefCurrentValues(self, user, params=dict()):
+        current_date = datetime.now().strftime('%m/%d/%Y')
+        current_time = '{}:{}:{}'.format('%02d' % datetime.now().hour,
+                                         '%02d' % datetime.now().minute,
+                                         '%02d' % datetime.now().second)
+
+        if 'date' in params:
+            current_date = params['date']
+        if 'time' in params:
+            current_time = params['time']
+
+        created_at = datetime.strptime(
+            '%s %s' % (current_date, current_time), '%m/%d/%Y %H:%M:%S')
+        current_title = created_at.strftime('%m/%d Update')
+
+        _udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(
+            user=user, created_at__lt=created_at) if not udfs.isEnded()]
+        udfs_list = [dict(
+            id=_udfs.id,
+            factor=dict(
+                id=_udfs.factor.id,
+                title=_udfs.getFactorTitle(),
+                levels=_udfs.getFactorLevels()),
+            disabled=False
+        ) for _udfs in _udfs_list]
+
+        for factor in Factor.objects.all():
+            udfs_last = UserDailyFactorStart.objects.filter(
+                user=user, factor=factor, created_at__lt=created_at).order_by('-created_at').first()
+
+            if udfs_last and udfs_last not in _udfs_list:
+                if udfs_last.getEndedAt() and udfs_last.getEndedAt() > created_at:
+                    udfs_list.append(dict(
+                        id=udfs_last.id,
+                        factor=dict(
+                            id=udfs_last.factor.id,
+                            title=udfs_last.getFactorTitle(),
+                            levels=udfs_last.getFactorLevels()),
+                        disabled=True
+                    ))
+
+        return [udfs_list, current_title, current_date, current_time]
+
     def post(self, request, *args, **kwargs):
         user_id = isUserLoggedIn(request)
 
@@ -74,7 +117,18 @@ class UpdateFactorsPage(View):
 
         params = request.POST
 
-        if params['action'] == 'add':
+        if params['action'] == 'get_daily_factors':
+            [udfs_list, current_title, current_date,
+                current_time] = self.gefCurrentValues(user, params)
+
+            return JsonResponse(dict(
+                udfs_list=udfs_list,
+                current_title=current_title,
+                current_date=current_date,
+                current_time=current_time
+            ))
+
+        elif params['action'] == 'add':
             if 'selected_uf_id' in params:
                 # update Update Factors
                 uf = UserFactors.objects.get(
@@ -145,16 +199,25 @@ class UpdateFactorsPage(View):
 
         elif params['action'] == 'add_udfs':
             factor_id = params['factor_id']
+            factor = Factor.objects.get(id=factor_id)
 
             started_at = '%s %s' % (params['date'], params['time'])
             started_at = datetime.strptime(started_at, '%m/%d/%Y %H:%M:%S')
 
             udfs = UserDailyFactorStart(
-                user=user, factor=Factor.objects.get(id=factor_id), created_at=started_at)
+                user=user, factor=factor, created_at=started_at)
 
             udfs.save()
 
-            return JsonResponse(dict(added=True, udfs=dict(id=udfs.id, disabled=False)))
+            return JsonResponse(dict(
+                added=True,
+                udfs=dict(
+                    id=udfs.id,
+                    factor=dict(
+                        id=udfs.factor.id,
+                        title=udfs.getFactorTitle(),
+                        levels=udfs.getFactorLevels()),
+                    disabled=False)))
 
         elif params['action'] == 'add_udfe':
             udfs_id = params['udfs_id']
@@ -242,40 +305,12 @@ class UpdateFactorsPage(View):
         current_time = '{}:{}:{}'.format('%02d' % datetime.now().hour,
                                          '%02d' % datetime.now().minute,
                                          '%02d' % datetime.now().second)
-        if 'date' in params:
-            current_date = params['date']
-        if 'time' in params:
-            current_time = params['time']
 
         cif_list = CurrentIntermittentFactor.objects.filter(
             user=user)
 
-        created_at = datetime.strptime(
-            '%s %s' % (current_date, current_time), '%m/%d/%Y %H:%M:%S')
-
-        _udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(
-            user=user, created_at__lt=created_at) if not udfs.isEnded()]
-        udfs_list = [dict(
-            id=_udfs.id,
-            factor_id=_udfs.factor.id,
-            factor_title=_udfs.getFactorTitle(),
-            factor_levels=_udfs.getFactorLevels(),
-            disabled=False
-        ) for _udfs in _udfs_list]
-
-        for factor in Factor.objects.all():
-            udfs_last = UserDailyFactorStart.objects.filter(
-                user=user, factor=factor, created_at__lt=created_at).order_by('-created_at').first()
-
-            if udfs_last and udfs_last not in _udfs_list:
-                if udfs_last.getEndedAt() and udfs_last.getEndedAt() > created_at:
-                    udfs_list.append(dict(
-                        id=udfs_last.id,
-                        factor_id=udfs_last.factor.id,
-                        factor_title=udfs_last.getFactorTitle(),
-                        factor_levels=udfs_last.getFactorLevels(),
-                        disabled=True
-                    ))
+        [udfs_list, current_title, current_date,
+            current_time] = self.gefCurrentValues(user)
 
         selected_uf = None
         factors = []
@@ -331,7 +366,7 @@ class UpdateFactorsPage(View):
                 except ObjectDoesNotExist:
                     pass
 
-                if factor.id in [udfs['factor_id'] for udfs in udfs_list]:
+                if factor.id in [udfs['factor']['id'] for udfs in udfs_list]:
                     _factor['disabled'] = True
 
                 factors.append(_factor)
@@ -367,11 +402,8 @@ class UpdateFactorsPage(View):
                 title=uf.title
             ) for uf in UserFactors.objects.filter(user=user).order_by('-created_at')]
 
-        default_title = datetime.now().strftime('%m/%d Update')
-
         return render(request, self.template_name, dict(
             user_id=user_id,
-            default_title=default_title,
             cif_list=cif_list,
             udfs_list=udfs_list,
             factors=factors,
@@ -379,6 +411,7 @@ class UpdateFactorsPage(View):
             uf_list=uf_list,
             org_factors=org_factors,
             date_filter=date_filter,
+            current_title=current_title,
             current_date=current_date,
             current_time=current_time
         ))

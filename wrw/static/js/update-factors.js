@@ -6,18 +6,30 @@ $(document).ready(function () {
         setTimeout(function () {
             $(".alert").removeClass("show");
         }, 500);
+    };
 
+    var refreshFactorDropdowns = function () {
+        $("form.uf-form select.factors option").remove();
+
+        $("form.uf-form select.factors").append("<option value=-1>Please select factor</option>");
+
+        $.each(org_factors, function (factor_idx, factor) {
+            $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
+        });
+
+        $.each($("table.cif-list tbody tr button.delete, table.cdf-list tbody tr button.delete"), function (btn_idx, btn_selector) {
+            var factor_id = $(btn_selector).data("factor-id");
+
+            if ($("form.uf-form select.factors option[value=" + factor_id + "]").length)
+                $("form.uf-form select.factors option[value=" + factor_id + "]").remove();
+        });
     };
 
     $("form.uf-form button.delete:not(.end-daily-factor)").click(function () {
         var factor_id = $(this).data("factor-id");
         $(this).parents("tr").remove();
 
-        $.each(org_factors, function (idx, factor) {
-            if (factor["id"] == factor_id) {
-                $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
-            }
-        });
+        refreshFactorDropdowns();
     });
 
     var bindEvents = function () {
@@ -27,18 +39,14 @@ $(document).ready(function () {
             var factor_id = $(this).data("factor-id");
             $(this).parents("tr").remove();
 
-            $.post("/user/" + user_id + "/update_factors/", {
+            $.post(ajax_url, {
                 action: "delete_cif",
                 factor_id: factor_id
             }, function (res_data) {
                 // console.log(res_data)
             });
 
-            $.each(org_factors, function (idx, factor) {
-                if (factor["id"] == factor_id) {
-                    $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
-                }
-            });
+            refreshFactorDropdowns();
         });
 
         $("form.uf-form button.end-daily-factor:not(:disabled)").bind("click", function () {
@@ -50,7 +58,7 @@ $(document).ready(function () {
                 var date = $("#date").val();
                 var time = $("#time").val();
 
-                $.post("/user/" + user_id + "/update_factors/", {
+                $.post(ajax_url, {
                     action: "add_udfe",
                     udfs_id: udfs_id,
                     date: date,
@@ -59,23 +67,21 @@ $(document).ready(function () {
                     // console.log(res_data)
                 });
 
-                $.each(org_factors, function (idx, factor) {
-                    if (factor["id"] == factor_id) {
-                        $("form.uf-form select.factors").append("<option value=" + factor["id"] + ">" + factor["title"] + "</option>");
-                    }
-                });
+                refreshFactorDropdowns();
             }
         });
 
         $(".convert-to-intermittent:not(:disabled)").bind("click", function () {
             var factor_id = $(this).siblings("button.delete").data("factor-id");
             $(this).siblings("button.delete").trigger("click");
+
             addIntermittentFactor(factor_id);
         });
 
         $(".convert-to-daily:not(:disabled)").bind("click", function () {
             var factor_id = $(this).siblings("button.delete").data("factor-id");
             $(this).siblings("button.delete").trigger("click");
+
             addDailyFactor(factor_id);
         });
     };
@@ -87,6 +93,11 @@ $(document).ready(function () {
         $("form.uf-form button.end-daily-factor:not(:disabled)").unbind("click");
         $(".convert-to-intermittent:not(:disabled)").unbind("click");
         $(".convert-to-daily:not(:disabled)").unbind("click");
+    };
+
+    var resetEvents = function () {
+        unbindEvents();
+        bindEvents();
     };
 
     var getIntermittentFactorRowTemplate = function (factor) {
@@ -134,18 +145,18 @@ $(document).ready(function () {
         return tr_template;
     };
 
-    var getDailyFactorRowTemplate = function (udfs, factor) {
+    var getDailyFactorRowTemplate = function (udfs) {
         var tr_template = `
             <tr>
                 <td class="align-middle" width="200px">
-                    <h5 class="mb-0">`+ factor["title"] + `</h5>
+                    <h5 class="mb-0">`+ udfs.factor.title + `</h5>
                     <input type="hidden" name="udfs_IDs" value="`+ udfs.id + `"/>
                 </td>
 
                 <td class="align-middle" width="500px">
                     <div class="row mx-auto">`;
 
-        $.each(factor["levels"], function (level_idx, level) {
+        $.each(udfs.factor.levels, function (level_idx, level) {
             tr_template += `
                         <div class="col px-1 text-center">
                             <label for="radio_`+ udfs.id + `_` + (level_idx + 1) + `" class="text-center w-100">` + level + `</label>
@@ -164,9 +175,9 @@ $(document).ready(function () {
 
                 <td class="align-middle">
                     <div class="row mx-auto">
-                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="`+ udfs.id + `" data-factor-id="` + factor["id"] + `" ` + (udfs.disabled ? `disabled` : ``) + `>Make Intermittent</button>
+                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="`+ udfs.id + `" data-factor-id="` + udfs.factor.id + `" ` + (udfs.disabled ? `disabled` : ``) + `>Make Intermittent</button>
 
-                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="`+ udfs.id + `" data-factor-id="` + factor["id"] + `" ` + (udfs.disabled ? `disabled` : ``) + `>
+                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="`+ udfs.id + `" data-factor-id="` + udfs.factor.id + `" ` + (udfs.disabled ? `disabled` : ``) + `>
                             <i class="fa fa-times" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -180,21 +191,20 @@ $(document).ready(function () {
     var addIntermittentFactor = function (factor_id) {
         $.each(org_factors, function (idx, factor) {
             if (factor["id"] == factor_id) {
-                $.post("/user/" + user_id + "/update_factors/", {
+                $.post(ajax_url, {
                     action: "add_cif",
                     factor_id: factor_id
                 }, function (res_data) {
                     if (res_data.added) {
                         $("table.cif-list tbody").append(getIntermittentFactorRowTemplate(factor));
 
-                        $("form.uf-form select.factors option[value=" + factor["id"] + "]").remove();
-
-                        unbindEvents();
-                        bindEvents();
+                        resetEvents();
                     }
                 });
             }
         });
+
+        refreshFactorDropdowns();
     };
 
     var addDailyFactor = function (factor_id) {
@@ -203,20 +213,21 @@ $(document).ready(function () {
 
         $.each(org_factors, function (idx, factor) {
             if (factor["id"] == factor_id) {
-                $.post("/user/" + user_id + "/update_factors/", {
+                $.post(ajax_url, {
                     action: "add_udfs",
                     factor_id: factor_id,
                     date: date,
                     time: time
                 }, function (res_data) {
-                    if (res_data.added) {
-                        $("table.cdf-list tbody").append(getDailyFactorRowTemplate(res_data.udfs, factor));
+                    $("table.cdf-list tbody tr").remove();
 
-                        $("form.uf-form select.factors option[value=" + factor["id"] + "]").remove();
+                    $.each(res_data.udfs_list, function (udfs_idx, udfs) {
+                        $("table.cdf-list tbody").append(getDailyFactorRowTemplate(udfs));
+                    });
 
-                        unbindEvents();
-                        bindEvents();
-                    }
+                    refreshFactorDropdowns();
+
+                    resetEvents();
                 });
             }
         });
@@ -263,7 +274,25 @@ $(document).ready(function () {
         var time = $("#time").val();
 
         if (date && time) {
-            window.location.href = "/user/" + user_id + "/update_factors/?date=" + date + "&time=" + time;
+            $.post(ajax_url, {
+                action: "get_daily_factors",
+                date: date,
+                time: time
+            }, function (res_data) {
+                $("#title").val(res_data.current_title);
+                $("#date").datepicker("setDate", res_data.current_date);
+                $("#time").val(res_data.current_time);
+
+                $("table.cdf-list tbody tr").remove();
+
+                $.each(res_data.udfs_list, function (udfs_idx, udfs) {
+                    $("table.cdf-list tbody").append(getDailyFactorRowTemplate(udfs));
+                });
+
+                refreshFactorDropdowns();
+
+                resetEvents();
+            });
         }
     });
 });

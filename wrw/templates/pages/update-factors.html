@@ -7,7 +7,7 @@
 <script src="{% static 'js/update-factors.js' %}"></script>
 
 <script>
-    var user_id={{user_id}};
+    var ajax_url="/user/{{user_id}}/update_factors/";
     var org_factors = {{org_factors|safe}};
 </script>
 
@@ -64,7 +64,7 @@
                     <div class="col-12 col-lg-6">
                         <div class="form-group row mx-lg-0">
                             <label for="title" class="col-form-label label-1">Title</label>
-                            <input id="title" name="title" class="form-control col" value="{% if selected_uf %}{{selected_uf.title}}{% else %}{{ default_title }}{% endif %}" required />
+                            <input id="title" name="title" class="form-control col" value="{% if selected_uf %}{{selected_uf.title}}{% else %}{{ current_title }}{% endif %}" required />
                         </div>
                     </div>
                 </div>
@@ -224,13 +224,13 @@
                         {% for udfs in udfs_list %}
                             <tr>
                                 <td class="align-middle" width="200px">
-                                    <h5 class="mb-0">{{udfs.factor_title}}</h5>
+                                    <h5 class="mb-0">{{udfs.factor.title}}</h5>
                                     <input type="hidden" name="udfs_IDs" value="{{udfs.id}}"/>
                                 </td>
 
                                 <td class="align-middle" width="500px">
                                     <div class="row mx-auto">
-                                        {% for level in udfs.factor_levels %}
+                                        {% for level in udfs.factor.levels %}
                                             <div class="col px-1 text-center">
                                                 <label for="radio_{{udfs.id}}_{{forloop.counter}}" class="text-center w-100">{{level}}</label>
                                                 <input id="radio_{{udfs.id}}_{{forloop.counter}}" type="radio" name="udfs_{{udfs.id}}_level" value="{% if forloop.counter > 5 %}0{% else %}{{forloop.counter}}{% endif %}"/>
@@ -245,9 +245,9 @@
 
                                 <td class="align-middle">
                                     <div class="row mx-auto">
-                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="{{udfs.id}}" data-factor-id="{{udfs.factor_id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
+                                        <button class="btn btn-primary mr-2 convert-to-intermittent" data-udfs-id="{{udfs.id}}" data-factor-id="{{udfs.factor.id}}" {% if udfs.disabled %}disabled{% endif %}>Make Intermittent</button>
 
-                                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="{{udfs.id}}" data-factor-id="{{udfs.factor_id}}" {% if udfs.disabled %}disabled{% endif %}>
+                                        <button class="btn btn-danger delete end-daily-factor" type="button" data-udfs-id="{{udfs.id}}" data-factor-id="{{udfs.factor.id}}" {% if udfs.disabled %}disabled{% endif %}>
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>

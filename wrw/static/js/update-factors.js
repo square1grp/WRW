@@ -27,8 +27,7 @@ $(document).ready(function () {
             var factor_id = $(this).data("factor-id");
             $(this).parents("tr").remove();
 
-            var delete_url = $(this).attr("href");
-            $.post(delete_url, {
+            $.post("/user/" + user_id + "/update_factors/", {
                 action: "delete_cif",
                 factor_id: factor_id
             }, function (res_data) {
@@ -69,19 +68,14 @@ $(document).ready(function () {
         });
 
         $(".convert-to-intermittent:not(:disabled)").bind("click", function () {
-            var udfs_id = $(this).data("udfs-id");
-
-            if (udfs_id > 0) {
-                var date = $("#date").val();
-                var time = $("#time").val();
-
-                window.location.href = "/user/" + user_id + "/update_factors/?action=convert-to-intermittent&udfs_id=" + udfs_id + "&date=" + date + "&time=" + time;
-            }
+            var factor_id = $(this).siblings("button.delete").data("factor-id");
+            $(this).siblings("button.delete").trigger("click");
+            addIntermittentFactor(factor_id);
         });
 
         $(".convert-to-daily:not(:disabled)").bind("click", function () {
-            var factor_id = $(this).siblings("a").data("factor-id");
-            $(this).siblings("a").trigger("click");
+            var factor_id = $(this).siblings("button.delete").data("factor-id");
+            $(this).siblings("button.delete").trigger("click");
             addDailyFactor(factor_id);
         });
     };
@@ -136,9 +130,9 @@ $(document).ready(function () {
                                 <td class="align-middle">
                                     <div class="row mx-auto">
                                         <button class="btn btn-primary mr-2 convert-to-daily" data-factor-id="`+ factor["id"] + `">Make Daily</button>
-                                        <a class="btn btn-danger delete cif d-flex align-items-center" href="/user/`+ user_id + `/update_factors/" data-factor-id=` + factor["id"] + `>
+                                        <button class="btn btn-danger delete cif d-flex align-items-center" data-factor-id=` + factor["id"] + `>
                                             <i class="fa fa-times" aria-hidden="true"></i>
-                                        </a>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

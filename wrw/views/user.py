@@ -159,7 +159,7 @@ class UserPage(View):
 
                 udfm = udfm_updates[idx]
 
-                while d_days:
+                while d_days > 0:
                     created_at = created_at_list[idx +
                                                  1].date()-timedelta(days=d_days)
                     created_at = '%s 12:00:00' % created_at.strftime(

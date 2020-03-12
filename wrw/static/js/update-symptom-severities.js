@@ -59,7 +59,7 @@ $(document).ready(function () {
                         action: "add_cus",
                         symptom_id: symptom_id
                     }, function (res_data) {
-                        if (res_data["added"]) {
+                        if (res_data.added) {
                             var tr_template = `
                                 <tr>
                                     <td class="align-middle" width="250px">

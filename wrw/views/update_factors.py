@@ -154,7 +154,7 @@ class UpdateFactorsPage(View):
 
             udfs.save()
 
-            return JsonResponse(dict(added=True, udfs_id=udfs.id, factor_id=factor_id))
+            return JsonResponse(dict(added=True, udfs=dict(id=udfs.id, disabled=False)))
 
         elif params['action'] == 'add_udfe':
             udfs_id = params['udfs_id']

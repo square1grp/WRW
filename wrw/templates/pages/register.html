@@ -159,12 +159,8 @@
                             <select class="form-control col-lg-8" id="ethnicity_top" name="ethnicity_top" required>
                                 <option value="">Please select an option.</option>
 
-                                {% for key, values in ethnicity_list.items %}
-                                <optgroup label="{{key}}">
-                                    {% for value in values %}
+                                {% for value in ethnicity_list %}
                                     <option value="{{value}}">{{value}}</option>
-                                    {% endfor %}
-                                </optgroup>
                                 {% endfor %}
                             </select>
                             <div class="invalid-feedback text-right">
@@ -177,12 +173,8 @@
                             <select class="form-control col-lg-8" id="ethnicity_second" name="ethnicity_second">
                                 <option value="">Please select an option.</option>
 
-                                {% for key, values in ethnicity_list.items %}
-                                <optgroup label="{{key}}">
-                                    {% for value in values %}
+                                {% for value in ethnicity_list %}
                                     <option value="{{value}}">{{value}}</option>
-                                    {% endfor %}
-                                </optgroup>
                                 {% endfor %}
                             </select>
                         </div>
@@ -192,12 +184,8 @@
                             <select class="form-control col-lg-8" id="ethnicity_third" name="ethnicity_third">
                                 <option value="">Please select an option.</option>
 
-                                {% for key, values in ethnicity_list.items %}
-                                <optgroup label="{{key}}">
-                                    {% for value in values %}
+                                {% for value in ethnicity_list %}
                                     <option value="{{value}}">{{value}}</option>
-                                    {% endfor %}
-                                </optgroup>
                                 {% endfor %}
                             </select>
                         </div>
@@ -205,7 +193,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="gender" class="col-form-label col-lg-5">Biological Sex</label>
+                    <label for="gender" class="col-form-label col-lg-5">Sex</label>
                     <select class="form-control col-lg-7" name="gender" id="gender" required>
                         <option value="">Please select an option.</option>
                         <option value="male">Male</option>
@@ -224,6 +212,7 @@
                         <option value="hetero">Heterosexual</option>
                         <option value="homo">Homosexual</option>
                         <option value="bi">Bisexual</option>
+                        <option value="ot">Other</option>
                     </select>
 
                     <div class="invalid-feedback text-right">

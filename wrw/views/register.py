@@ -15,42 +15,7 @@ class RegisterPage(View):
 
     def getEthnicityList(self):
         return {
-            'European': [
-                'Northwestern European',
-                'Eastern European',
-                'Southern European',
-                'Ashkenazi Jewish',
-                'Broadly European'
-            ],
-            'Central & South Asian': [
-                'Central Asian, Northern Indian & Pakistani',
-                'Southern Indian Subgroup',
-                'Southern South Asian',
-                'Broadly Central & South Asian'
-            ],
-            'East Asian & Native American': [
-                'Chinese & Southeast Asian',
-                'Japanese & Korean',
-                'Northern Asian',
-                'Native American',
-                'Broadly East Asian & Native American'
-            ],
-            'Sub-Saharan African': [
-                'West African',
-                'Northern East African',
-                'Congolese & Southern East African',
-                'African Hunter-Gatherer',
-                'Broadly Sub-Saharan African'
-            ],
-            'Western Asian & North African': [
-                'Arab, Egyptian & Levantine',
-                'North African',
-                'Northern West Asian',
-                'Broadly Western Asian & North African'
-            ],
-            'Melanesian': [
-                'Broadly Melanesian'
-            ]
+            'American', 'Indian', 'Asian', 'Black', 'Native Hawaiian', 'White', 'Hispanic', 'Prefer Not to Say'
         }
 
     def post(self, request, *args, **kwargs):

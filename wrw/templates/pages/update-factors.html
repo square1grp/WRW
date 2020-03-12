@@ -108,7 +108,7 @@
                                 <td class="align-middle">
                                     <div class="row mx-auto">
                                         <button class="btn btn-primary mr-2 convert-to-daily" data-factor-id="{{uif.factor.id}}" {% if selected_uf %}disabled{% endif %}>Make Daily</button>
-                                        <button class="btn btn-danger delete" id="delete-factor-{{uif.factor.id}}" type="button" data-factor-id="{{uif.factor.id}}">
+                                        <button class="btn btn-danger delete" id="delete-factor-{{uif.factor.id}}" type="button" data-factor-id="{{uif.factor.id}}" {% if selected_uf %}disabled{% endif %}>
                                             <i class="fa fa-times" aria-hidden="true"></i>
                                         </button>
                                     </div>

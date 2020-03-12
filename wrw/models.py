@@ -389,7 +389,7 @@ class UserIntermittentFactor(models.Model):
         return self.selected_level
 
     def getLevel(self):
-        return getattr(self.factor, 'level_%s' % self.selected_level)
+        return getattr(self.factor, 'level_%s' % self.selected_level) if self.selected_level is not None else None
     getLevel.short_description = 'Factor Level'
 
     def getTitle(self):

@@ -57,10 +57,13 @@ class RegisterPage(View):
                 subject='Email verification',
                 html_content='<a href="%s" target="_blank">Click here</a> or visit this URL on the browser: %s' % (href, href))
 
-            sg = SendGridAPIClient(SENDGRID_KEY)
-            sg.send(message)
+            try:
+                sg = SendGridAPIClient(SENDGRID_KEY)
+                sg.send(message)
 
-            user.save()
+                user.save()
+            except:
+                pass
 
             return HttpResponseRedirect('/register/verify-token/')
 

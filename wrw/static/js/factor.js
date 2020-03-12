@@ -41,5 +41,8 @@ $(document).ready(function() {
         }
       };
       Plotly.restyle($(this).attr("id"), update, [tn]);
+    })
+    .on("plotly_legendclick", function() {
+      return false;
     });
 });

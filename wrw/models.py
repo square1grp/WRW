@@ -30,6 +30,11 @@ class User(models.Model):
     country = models.CharField(max_length=50)
     confirm_token = models.TextField(unique=True, null=True, blank=True)
     is_approved = models.BooleanField(default=False)
+    approved_at = models.DateTimeField('Approved at', default=timezone.now)
+    is_auto_renew = models.BooleanField(default=False)
+    is_member = models.BooleanField(default=False)
+    member_started_date = models.DateTimeField("Member started date", null=True, blank=True)
+    member_expiration_date = models.DateTimeField("Member expiration date", null=True, blank=True)
 
     class Meta:
         verbose_name = 'User'

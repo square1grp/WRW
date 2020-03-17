@@ -1,7 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
-from wrw.models import User, Symptom, Factor, UserSingleSymptomSeverity, UserIntermittentFactor, UserDailyFactorMeta
+from wrw.models import User, Symptom, Factor, UserSingleSymptomSeverity, UserIntermittentFactor, UserDailyFactorMeta, UserDailyFactorStart
 from wrw.utils import isUserLoggedIn
 from datetime import datetime, date, timedelta
 from plotly.offline import plot
@@ -120,6 +120,7 @@ class UserPage(View):
         return plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
 
+    '''
     def checkActiveUDFMUpdates(self, udfm_updates):
         if len(udfm_updates):
             latest_udfm = udfm_updates[-1]
@@ -177,47 +178,68 @@ class UserPage(View):
                     d_days -= 1
 
         return sorted(udfm_updates, key=lambda k: k['created_at'])
+    '''
 
     def getFactorsScatters(self, user, for_sync=False):
-        factor_updates_list = []
+        factor_updates = dict()
         scatters = []
         created_at_list = []
 
+        none_point = dict(
+            title=None,
+            description=None,
+            severity=None,
+            created_at=None,
+        )
+
         for factor in Factor.objects.all():
+            udfs_list = UserDailyFactorStart.objects.filter(
+                user=user, factor=factor).order_by('created_at')
+
+            for udfs in udfs_list:
+                udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start=udfs).exclude(
+                    selected_level__isnull=True).order_by('created_at')
+
+                if not len(udfm_list):
+                    continue
+
+                udfm_updates = [dict(
+                    title=udfm.getTitle(),
+                    description=udfm.getDescription(),
+                    severity=udfm.getLevelNum(),
+                    created_at=udfm.getCreatedAt(),
+                ) for udfm in udfm_list]
+
+                if str(factor) not in factor_updates:
+                    factor_updates[str(factor)] = []
+
+                if len(factor_updates[str(factor)]):
+                    factor_updates[str(factor)] += [none_point]
+
+                factor_updates[str(factor)] += udfm_updates
+
+                if udfm_list[len(udfm_list)-1].isEnded():
+                    factor_updates[str(factor)] += [none_point]
+
             uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
                 selected_level__isnull=True).order_by('user_factors__created_at')
 
-            factor_updates_list.append(
-                dict(name=str(factor), data=[dict(
-                    title=uif.getTitle(),
-                    description=uif.getDescription(),
-                    severity=uif.getLevelNum(),
-                    created_at=uif.getCreatedAt()
-                ) for uif in uif_list]))
+            if str(factor) not in factor_updates:
+                factor_updates[str(factor)] = []
 
-        for factor in Factor.objects.all():
-            udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start__user=user, user_daily_factor_start__factor=factor).exclude(
-                selected_level__isnull=True).order_by('created_at')
-
-            udfm_updates = [dict(
-                title=udfm.getTitle(),
-                description=udfm.getDescription(),
-                severity=udfm.getLevelNum(),
-                created_at=udfm.getCreatedAt(),
-                is_ended=udfm.isEnded(),
-                ended_at=udfm.getEndedAt()
-            ) for udfm in udfm_list]
-
-            udfm_updates = self.checkActiveUDFMUpdates(udfm_updates)
-
-            factor_updates_list.append(
-                dict(name=str(factor), data=udfm_updates))
+            factor_updates[str(factor)] += [dict(
+                title=uif.getTitle(),
+                description=uif.getDescription(),
+                severity=uif.getLevelNum(),
+                created_at=uif.getCreatedAt()
+            ) for uif in uif_list]
 
         colors = colorlover.scales['10']['qual']['Paired']
         colors = ['255, 0, 0'] + [text[4:-2] for text in colors]
 
-        for index, factor_updates in enumerate(factor_updates_list):
-            item_list = factor_updates['data']
+        index = 0
+        for factor in factor_updates:
+            item_list = factor_updates[factor]
 
             if not for_sync:
                 line_colors = ['rgba(%s, 0)' % colors[index]] * len(item_list)
@@ -234,11 +256,13 @@ class UserPage(View):
                                    width=12, color=line_colors)),
                                line_color='rgb(%s)' % colors[index],
                                customdata=item_list,
-                               name=factor_updates['name']))
+                               name=factor))
             else:
                 for item in item_list:
                     if item['created_at'] not in created_at_list:
                         created_at_list.append(item['created_at'])
+
+            index += 1
 
         return scatters if not for_sync else created_at_list
 

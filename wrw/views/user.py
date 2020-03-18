@@ -194,46 +194,50 @@ class UserPage(View):
             uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
                 selected_level__isnull=True).order_by('user_factors__created_at')
 
-            if str(factor) not in factor_updates:
-                factor_updates[str(factor)] = []
-
-            factor_updates[str(factor)] += [dict(
-                title=uif.getTitle(),
-                description=uif.getDescription(),
-                severity=uif.getLevelNum(),
-                created_at=uif.getCreatedAt()
-            ) for uif in uif_list]
-
             udfs_list = UserDailyFactorStart.objects.filter(
                 user=user, factor=factor).order_by('created_at')
 
-            for udfs in udfs_list:
-                udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start=udfs).exclude(
-                    selected_level__isnull=True).order_by('created_at')
+            uf_data_list = [uif for uif in uif_list] + \
+                [udfs for udfs in udfs_list]
+            uf_data_list.sort(key=lambda x: x.getCreatedAt())
 
-                if not len(udfm_list):
-                    continue
+            factor_updates[str(factor)] = []
 
-                udfm_updates = [dict(
-                    title=udfm.getTitle(),
-                    description=udfm.getDescription(),
-                    severity=udfm.getLevelNum(),
-                    created_at=udfm.getCreatedAt(),
-                    is_ended=udfm.isEnded(),
-                    ended_at=udfm.getEndedAt()
-                ) for udfm in udfm_list]
-                udfm_updates = self.checkActiveUDFMUpdates(udfm_updates)
+            for uf_data in uf_data_list:
+                if isinstance(uf_data, UserIntermittentFactor):
+                    factor_updates[str(factor)] += [dict(
+                        title=uf_data.getTitle(),
+                        description=uf_data.getDescription(),
+                        severity=uf_data.getLevelNum(),
+                        created_at=uf_data.getCreatedAt()
+                    )]
+                elif isinstance(uf_data, UserDailyFactorStart):
+                    for udfs in udfs_list:
+                        udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start=udfs).exclude(
+                            selected_level__isnull=True).order_by('created_at')
 
-                if str(factor) not in factor_updates:
-                    factor_updates[str(factor)] = []
+                        if not len(udfm_list):
+                            continue
 
-                if len(factor_updates[str(factor)]):
-                    factor_updates[str(factor)] += [none_point]
+                        udfm_updates = [dict(
+                            title=udfm.getTitle(),
+                            description=udfm.getDescription(),
+                            severity=udfm.getLevelNum(),
+                            created_at=udfm.getCreatedAt(),
+                            is_ended=udfm.isEnded(),
+                            ended_at=udfm.getEndedAt()
+                        ) for udfm in udfm_list]
 
-                factor_updates[str(factor)] += udfm_updates
+                        udfm_updates = self.checkActiveUDFMUpdates(
+                            udfm_updates)
 
-                if udfm_list[len(udfm_list)-1].isEnded():
-                    factor_updates[str(factor)] += [none_point]
+                        if len(factor_updates[str(factor)]):
+                            factor_updates[str(factor)] += [none_point]
+
+                        factor_updates[str(factor)] += udfm_updates
+
+                        if udfm_list[len(udfm_list)-1].isEnded():
+                            factor_updates[str(factor)] += [none_point]
 
         colors = colorlover.scales['10']['qual']['Paired']
         colors = ['255, 0, 0'] + [text[4:-2] for text in colors]

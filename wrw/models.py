@@ -446,6 +446,9 @@ class UserDailyFactorStart(models.Model):
 
         return udfm.getDescription() if udfm else ''
 
+    def getCreatedAt(self):
+        return self.created_at
+
     def isEnded(self):
         try:
             UserDailyFactorEnd.objects.get(user_daily_factor_start=self)

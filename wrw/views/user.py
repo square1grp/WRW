@@ -120,7 +120,6 @@ class UserPage(View):
         return plot(fig, output_type='div', include_plotlyjs=False,
                     config=dict(displayModeBar=False))
 
-    '''
     def checkActiveUDFMUpdates(self, udfm_updates):
         if len(udfm_updates):
             latest_udfm = udfm_updates[-1]
@@ -178,7 +177,6 @@ class UserPage(View):
                     d_days -= 1
 
         return sorted(udfm_updates, key=lambda k: k['created_at'])
-    '''
 
     def getFactorsScatters(self, user, for_sync=False):
         factor_updates = dict()
@@ -193,6 +191,19 @@ class UserPage(View):
         )
 
         for factor in Factor.objects.all():
+            uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
+                selected_level__isnull=True).order_by('user_factors__created_at')
+
+            if str(factor) not in factor_updates:
+                factor_updates[str(factor)] = []
+
+            factor_updates[str(factor)] += [dict(
+                title=uif.getTitle(),
+                description=uif.getDescription(),
+                severity=uif.getLevelNum(),
+                created_at=uif.getCreatedAt()
+            ) for uif in uif_list]
+
             udfs_list = UserDailyFactorStart.objects.filter(
                 user=user, factor=factor).order_by('created_at')
 
@@ -208,7 +219,10 @@ class UserPage(View):
                     description=udfm.getDescription(),
                     severity=udfm.getLevelNum(),
                     created_at=udfm.getCreatedAt(),
+                    is_ended=udfm.isEnded(),
+                    ended_at=udfm.getEndedAt()
                 ) for udfm in udfm_list]
+                udfm_updates = self.checkActiveUDFMUpdates(udfm_updates)
 
                 if str(factor) not in factor_updates:
                     factor_updates[str(factor)] = []
@@ -220,19 +234,6 @@ class UserPage(View):
 
                 if udfm_list[len(udfm_list)-1].isEnded():
                     factor_updates[str(factor)] += [none_point]
-
-            uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
-                selected_level__isnull=True).order_by('user_factors__created_at')
-
-            if str(factor) not in factor_updates:
-                factor_updates[str(factor)] = []
-
-            factor_updates[str(factor)] += [dict(
-                title=uif.getTitle(),
-                description=uif.getDescription(),
-                severity=uif.getLevelNum(),
-                created_at=uif.getCreatedAt()
-            ) for uif in uif_list]
 
         colors = colorlover.scales['10']['qual']['Paired']
         colors = ['255, 0, 0'] + [text[4:-2] for text in colors]

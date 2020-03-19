@@ -191,14 +191,13 @@ class UserPage(View):
         )
 
         for factor in Factor.objects.all():
-            uif_list = UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
-                selected_level__isnull=True).order_by('user_factors__created_at')
+            uif_list = [uif for uif in UserIntermittentFactor.objects.filter(user_factors__user=user, factor=factor).exclude(
+                selected_level__isnull=True).order_by('user_factors__created_at')]
 
-            udfs_list = UserDailyFactorStart.objects.filter(
-                user=user, factor=factor).order_by('created_at')
+            udfs_list = [udfs for udfs in UserDailyFactorStart.objects.filter(
+                user=user, factor=factor).order_by('created_at')]
 
-            uf_data_list = [uif for uif in uif_list] + \
-                [udfs for udfs in udfs_list]
+            uf_data_list = uif_list + udfs_list
             uf_data_list.sort(key=lambda x: x.getCreatedAt())
 
             factor_updates[str(factor)] = []
@@ -212,32 +211,31 @@ class UserPage(View):
                         created_at=uf_data.getCreatedAt()
                     )]
                 elif isinstance(uf_data, UserDailyFactorStart):
-                    for udfs in udfs_list:
-                        udfm_list = UserDailyFactorMeta.objects.filter(user_daily_factor_start=udfs).exclude(
-                            selected_level__isnull=True).order_by('created_at')
+                    udfm_list = [udfm for udfm in UserDailyFactorMeta.objects.filter(user_daily_factor_start=uf_data).exclude(
+                        selected_level__isnull=True).order_by('created_at')]
 
-                        if not len(udfm_list):
-                            continue
+                    if not len(udfm_list):
+                        continue
 
-                        udfm_updates = [dict(
-                            title=udfm.getTitle(),
-                            description=udfm.getDescription(),
-                            severity=udfm.getLevelNum(),
-                            created_at=udfm.getCreatedAt(),
-                            is_ended=udfm.isEnded(),
-                            ended_at=udfm.getEndedAt()
-                        ) for udfm in udfm_list]
+                    udfm_updates = [dict(
+                        title=udfm.getTitle(),
+                        description=udfm.getDescription(),
+                        severity=udfm.getLevelNum(),
+                        created_at=udfm.getCreatedAt(),
+                        is_ended=udfm.isEnded(),
+                        ended_at=udfm.getEndedAt()
+                    ) for udfm in udfm_list]
 
-                        udfm_updates = self.checkActiveUDFMUpdates(
-                            udfm_updates)
+                    udfm_updates = self.checkActiveUDFMUpdates(
+                        udfm_updates)
 
-                        if len(factor_updates[str(factor)]):
-                            factor_updates[str(factor)] += [none_point]
+                    if len(factor_updates[str(factor)]):
+                        factor_updates[str(factor)] += [none_point]
 
-                        factor_updates[str(factor)] += udfm_updates
+                    factor_updates[str(factor)] += udfm_updates
 
-                        if udfm_list[len(udfm_list)-1].isEnded():
-                            factor_updates[str(factor)] += [none_point]
+                    if udfm_list[-1].isEnded() and factor_updates[str(factor)][-1] != none_point:
+                        factor_updates[str(factor)] += [none_point]
 
         colors = colorlover.scales['10']['qual']['Paired']
         colors = ['255, 0, 0'] + [text[4:-2] for text in colors]

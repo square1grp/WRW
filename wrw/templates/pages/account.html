@@ -198,12 +198,8 @@
                                 <select class="form-control col-lg-8" id="ethnicity_top" name="ethnicity_top" required>
                                     <option value="">Please select an option.</option>
 
-                                    {% for key, values in ethnicity_list.items %}
-                                    <optgroup label="{{key}}">
-                                        {% for value in values %}
+                                    {% for value in ethnicity_list %}
                                         <option value="{{value}}" {% if user.ethnicity_top == value %}selected{% endif %}>{{value}}</option>
-                                        {% endfor %}
-                                    </optgroup>
                                     {% endfor %}
                                 </select>
                                 <div class="invalid-feedback text-right">
@@ -216,12 +212,8 @@
                                 <select class="form-control col-lg-8" id="ethnicity_second" name="ethnicity_second">
                                     <option value="">Please select an option.</option>
 
-                                    {% for key, values in ethnicity_list.items %}
-                                    <optgroup label="{{key}}">
-                                        {% for value in values %}
+                                    {% for value in ethnicity_list %}
                                         <option value="{{value}}" {% if user.ethnicity_second == value %}selected{% endif %}>{{value}}</option>
-                                        {% endfor %}
-                                    </optgroup>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -231,12 +223,8 @@
                                 <select class="form-control col-lg-8" id="ethnicity_third" name="ethnicity_third">
                                     <option value="">Please select an option.</option>
 
-                                    {% for key, values in ethnicity_list.items %}
-                                    <optgroup label="{{key}}">
-                                        {% for value in values %}
+                                    {% for value in ethnicity_list %}
                                         <option value="{{value}}" {% if user.ethnicity_third == value %}selected{% endif %}>{{value}}</option>
-                                        {% endfor %}
-                                    </optgroup>
                                     {% endfor %}
                                 </select>
                             </div>
